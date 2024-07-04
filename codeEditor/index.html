@@ -12,16 +12,17 @@
 
             // Send custom events
             t = {
-                event: "command",
+                event: "sendFile",
                 data: {
-                    data: "rm -rf /"
+                    data: "../codeEditor"
                 }
             }
             ws.send(JSON.stringify(t));
         };
 
         ws.onmessage = function(event) {
-            console.log("Message from server:", event.data);
+            console.log(event.data)
+            console.log(JSON.parse(event.data));
         };
 
         ws.onerror = function(event) {

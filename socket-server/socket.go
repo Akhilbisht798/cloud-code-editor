@@ -55,10 +55,26 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 		sendData(conn, msg)
 	case "command":
 		executeCommand(conn, msg)
+	case "sendFile":
+		sendFilesToClient(conn, msg)
 	}
 }
 
 // Handler Functions.
+func sendFilesToClient(conn *websocket.Conn, msg Message) {
+	path, ok := msg.Data["data"].(string)
+	if !ok {
+		log.Println("invalid path: ", ok)
+		return
+	}
+	files, err := readDir(path)
+	if err != nil {
+		return
+	}
+	f := mapToString(files)
+	conn.WriteMessage(websocket.TextMessage, []byte(f))
+}
+
 func executeCommand(conn *websocket.Conn, msg Message) {
 	command, ok := msg.Data["data"].(string)
 	if !ok {
