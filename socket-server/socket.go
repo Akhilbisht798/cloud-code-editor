@@ -71,7 +71,7 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	if err != nil {
 		return
 	}
-	f, err := mapToString(files)
+	f, err := mapToJson(files)
 	if err != nil {
 		log.Println(err)
 		return
