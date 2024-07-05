@@ -1,9 +1,11 @@
 package main
 
 import (
-	"encoding/json"
+	"bytes"
+	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func readDir(dirpath string) (map[string]string, error) {
@@ -38,10 +40,14 @@ func readFile(filePath string) ([]byte, error) {
 	return content, nil
 }
 
-func mapToString(m map[string]string) (string, error) {
-	jsonData, err := json.Marshal(m)
-	if err != nil {
-		return "", err
+func mapToString(m map[string]string) string {
+	b := new(bytes.Buffer)
+	fmt.Fprintf(b, "{")
+	for key, value := range m {
+		escapedValue := strings.ReplaceAll(value, "\"", "\\\"")
+		fmt.Fprintf(b, "\"%s\"=\"%s\",\n", key, escapedValue)
 	}
-	return string(jsonData), nil
+	fmt.Fprintf(b, "}")
+
+	return b.String()
 }

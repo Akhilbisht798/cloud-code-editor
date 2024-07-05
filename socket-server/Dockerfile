@@ -1,4 +1,6 @@
 FROM golang
+# use ubuntu that will have many command
+# add a user
 
 WORKDIR /app
 

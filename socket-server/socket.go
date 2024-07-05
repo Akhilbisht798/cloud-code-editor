@@ -71,7 +71,11 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	if err != nil {
 		return
 	}
-	f := mapToString(files)
+	f, err := mapToString(files)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	conn.WriteMessage(websocket.TextMessage, []byte(f))
 }
 
