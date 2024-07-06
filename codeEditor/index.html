@@ -6,25 +6,46 @@
 </head>
 
 <body>
+    <textarea rows="20" cols="60" id="text"></textarea>
     <script>
         var ws = new WebSocket("ws://localhost:5000/ws");
+        const text = document.getElementById("text")
+        let currentFile;
+
+        text.addEventListener('keyup', () => {
+            console.log("changed")
+            t = {
+                event: "Filechanges",
+                data: {
+                    file:  currentFile,
+                    content: text.value, 
+                }
+            }
+            ws.send(JSON.stringify(t))
+        })
 
         ws.onopen = function () {
             console.log("Connection opened.");
 
-            // Send custom events
-            t = {
+            t = 
+            {
                 event: "sendFile",
                 data: {
-                    data: "../codeEditor"
+                    data: "../codeEditor/",
                 }
             }
             ws.send(JSON.stringify(t));
+            // files =localStorage.getItem("files")
+            // text.value = 
         };
 
         ws.onmessage = function (event) {
             const jsonString = event.data
-            console.log(JSON.parse(jsonString));
+            localStorage.setItem("files", event.data)
+            let file = localStorage.getItem("files")
+            file = JSON.parse(file)
+            text.value = file[2].content
+            currentFile = file[2].path
         };
 
         ws.onerror = function (event) {

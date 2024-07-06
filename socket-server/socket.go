@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -57,10 +58,29 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 		executeCommand(conn, msg)
 	case "sendFile":
 		sendFilesToClient(conn, msg)
+	case "Filechanges":
+		fileChanges(msg)
 	}
 }
 
 // Handler Functions.
+func fileChanges(msg Message) {
+	path, ok := msg.Data["file"].(string)
+	if !ok {
+		log.Println("invalid", ok)
+		return
+	}
+	content, ok := msg.Data["content"].(string)
+	if !ok {
+		log.Println("invalid", ok)
+		return
+	}
+	err := os.WriteFile(path, []byte(content), 0644)
+	if err != nil {
+		log.Fatal("Error writing to file: ", err)
+	}
+}
+
 func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	path, ok := msg.Data["data"].(string)
 	if !ok {
@@ -99,7 +119,8 @@ func executeCommand(conn *websocket.Conn, msg Message) {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Printf("Error Executing command: %s\n", err)
-		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("Error: %sOutput: %s", err, output)))
+		conn.WriteMessage(websocket.TextMessage, []byte(
+			fmt.Sprintf("Error: %sOutput: %s", err, output)))
 		return
 	}
 

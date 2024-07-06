@@ -1,6 +1,7 @@
 FROM golang
 # use ubuntu that will have many command
 # add a user
+# add packages like npm,node,go,python for easy head start. 
 
 WORKDIR /app
 
