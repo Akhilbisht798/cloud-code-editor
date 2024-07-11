@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 
 	"github.com/gorilla/websocket"
@@ -60,7 +59,7 @@ func runCommand(conn *websocket.Conn) {
 	}()
 
 	go func() {
-		scanner := bufio.NewScanner(os.Stdin)
+		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
 			line := scanner.Text()
 			err := conn.WriteMessage(websocket.TextMessage, []byte(line))
