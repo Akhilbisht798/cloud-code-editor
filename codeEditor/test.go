@@ -8,6 +8,7 @@ import (
 func readDir(dirpath string) (map[string]string, error) {
 	files := make(map[string]string)
 	entries, err := os.ReadDir(dirpath)
+
 	if err != nil {
 		log.Fatal("error reading directory: ", err)
 		return nil, err
@@ -36,5 +37,3 @@ func readFile(filePath string) ([]byte, error) {
 	}
 	return content, nil
 }
-
-

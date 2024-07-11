@@ -6,8 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -31,6 +29,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer c.Close()
+	runCommand(c)
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
@@ -55,7 +54,7 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 	case "sendData":
 		sendData(conn, msg)
 	case "command":
-		executeCommand(conn, msg)
+		readCommand(msg)
 	case "sendFile":
 		sendFilesToClient(conn, msg)
 	case "Filechanges":
@@ -97,34 +96,6 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 		return
 	}
 	conn.WriteMessage(websocket.TextMessage, []byte(f))
-}
-
-func executeCommand(conn *websocket.Conn, msg Message) {
-	command, ok := msg.Data["data"].(string)
-	if !ok {
-		log.Println("Invalid command")
-		return
-	}
-
-	command = strings.TrimSpace(command)
-	if command == "" {
-		errMsg := "empty command"
-		conn.WriteMessage(websocket.TextMessage, []byte(errMsg))
-		return
-	}
-
-	cmdParts := strings.Fields(command)
-	cmd := exec.Command(cmdParts[0], cmdParts[1:]...)
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf("Error Executing command: %s\n", err)
-		conn.WriteMessage(websocket.TextMessage, []byte(
-			fmt.Sprintf("Error: %sOutput: %s", err, output)))
-		return
-	}
-
-	conn.WriteMessage(websocket.TextMessage, output)
 }
 
 func sendData(conn *websocket.Conn, msg Message) {
