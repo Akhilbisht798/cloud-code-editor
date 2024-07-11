@@ -51,8 +51,6 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 	}
 
 	switch msg.Event {
-	case "sendData":
-		sendData(conn, msg)
 	case "command":
 		readCommand(msg)
 	case "sendFile":
@@ -96,17 +94,4 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 		return
 	}
 	conn.WriteMessage(websocket.TextMessage, []byte(f))
-}
-
-func sendData(conn *websocket.Conn, msg Message) {
-	name, ok := msg.Data["name"].(string)
-	if !ok {
-		log.Println("Invalid name data")
-		return
-	}
-	err := conn.WriteMessage(websocket.TextMessage, []byte(name))
-	if err != nil {
-		log.Println("error sending message: ", err)
-		return
-	}
 }
