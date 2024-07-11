@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/websocket"
 )
@@ -58,40 +57,4 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 	case "Filechanges":
 		fileChanges(msg)
 	}
-}
-
-// Handler Functions.
-func fileChanges(msg Message) {
-	path, ok := msg.Data["file"].(string)
-	if !ok {
-		log.Println("invalid", ok)
-		return
-	}
-	content, ok := msg.Data["content"].(string)
-	if !ok {
-		log.Println("invalid", ok)
-		return
-	}
-	err := os.WriteFile(path, []byte(content), 0644)
-	if err != nil {
-		log.Fatal("Error writing to file: ", err)
-	}
-}
-
-func sendFilesToClient(conn *websocket.Conn, msg Message) {
-	path, ok := msg.Data["data"].(string)
-	if !ok {
-		log.Println("invalid path: ", ok)
-		return
-	}
-	files, err := readDir(path)
-	if err != nil {
-		return
-	}
-	f, err := mapToJson(files)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	conn.WriteMessage(websocket.TextMessage, []byte(f))
 }
