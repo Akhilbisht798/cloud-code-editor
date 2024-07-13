@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
@@ -45,7 +46,19 @@ func runCommand(conn *websocket.Conn) {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
 			line := scanner.Text()
-			err := conn.WriteMessage(websocket.TextMessage, []byte(line))
+
+			resp := Message{
+				Event: "command-response",
+				Data: map[string]interface{}{
+					"response": line,
+				},
+			}
+			jsonData, err := json.Marshal(resp)
+			if err != nil {
+				log.Fatal("error converting it to json: ", err)
+				continue
+			}
+			err = conn.WriteMessage(websocket.TextMessage, jsonData)
 			if err != nil {
 				log.Fatal("Error writing to websocket: ", err)
 				break
@@ -62,7 +75,19 @@ func runCommand(conn *websocket.Conn) {
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
 			line := scanner.Text()
-			err := conn.WriteMessage(websocket.TextMessage, []byte(line))
+
+			resp := Message{
+				Event: "command-response",
+				Data: map[string]interface{}{
+					"response": line,
+				},
+			}
+			jsonData, err := json.Marshal(resp)
+			if err != nil {
+				log.Fatal("error converting it to json: ", err)
+				continue
+			}
+			err = conn.WriteMessage(websocket.TextMessage, jsonData)
 			if err != nil {
 				log.Fatal("Error writing to websocket: ", err)
 				break

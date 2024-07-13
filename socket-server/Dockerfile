@@ -25,7 +25,7 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Node and nvm setup.
 ENV NVM_DIR="/usr/local/nvm"
-ENV NODE_VERSION="18.12.0"
+ENV NODE_VERSION="20.9.0"
 RUN mkdir $NVM_DIR
 
 RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash

@@ -32,7 +32,7 @@ func fileChanges(msg Message) {
 }
 
 func sendFilesToClient(conn *websocket.Conn, msg Message) {
-	path, ok := msg.Data["data"].(string)
+	path, ok := msg.Data["path"].(string)
 	if !ok {
 		log.Println("invalid path: ", ok)
 		return
@@ -58,7 +58,8 @@ func readDir(dirpath string) ([]FileInfo, error) {
 	}
 	for _, e := range entries {
 		filePath := dirpath + "/" + e.Name()
-		f := FileInfo{Path: filePath, IsDir: e.IsDir()}
+		path := dirpath + e.Name()
+		f := FileInfo{Path: path, IsDir: e.IsDir()}
 		if !e.IsDir() {
 			fileContent, err := readFile(filePath)
 			if err != nil {
@@ -82,5 +83,11 @@ func readFile(filePath string) ([]byte, error) {
 }
 
 func mapToJson(files []FileInfo) ([]byte, error) {
-	return json.Marshal(files)
+	resp := Message{
+		Event: "server-send-files",
+		Data: map[string]interface{}{
+			"files": files,
+		},
+	}
+	return json.Marshal(resp)
 }

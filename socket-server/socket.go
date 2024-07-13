@@ -52,9 +52,9 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 	switch msg.Event {
 	case "command":
 		readCommand(msg)
-	case "sendFile":
+	case "send-files":
 		sendFilesToClient(conn, msg)
-	case "Filechanges":
+	case "file-changes":
 		fileChanges(msg)
 	}
 }
