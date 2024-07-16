@@ -1,20 +1,21 @@
-import socketEventHandler from "./socketHandler";
+import socketEventHandler, { requestFiles } from "./socketHandler";
 
-var ws = new WebSocket("ws://localhost:5000/ws");
+const WS = new WebSocket("ws://localhost:5000/ws");
+const RootDir = "../client";
 
-ws.onopen = function () {
+WS.onopen = function () {
   console.log("Connection opened.");
+  requestFiles(RootDir);
 };
 
-// Handle events.
-ws.onmessage = socketEventHandler;
+WS.onmessage = socketEventHandler;
 
-ws.onerror = function (event) {
+WS.onerror = function (event) {
   console.error("WebSocket error:", event);
 };
 
-ws.onclose = function () {
+WS.onclose = function () {
   console.log("Connection closed.");
 };
 
-export default ws;
+export default WS;

@@ -10,6 +10,7 @@ import (
 
 type FileInfo struct {
 	Path    string `json:"path"`
+	Name    string `json:"name"`
 	IsDir   bool   `json:"isDir"`
 	Content string `json:"content,omitempty"`
 }
@@ -41,7 +42,7 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	if err != nil {
 		return
 	}
-	f, err := mapToJson(files)
+	f, err := mapToJson(files, path)
 	if err != nil {
 		log.Println(err)
 		return
@@ -51,6 +52,8 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 
 func readDir(dirpath string) ([]FileInfo, error) {
 	files := make([]FileInfo, 0)
+	//base := "/home/akhil"
+
 	entries, err := os.ReadDir(dirpath)
 	if err != nil {
 		log.Fatal("error reading directory: ", err)
@@ -58,8 +61,7 @@ func readDir(dirpath string) ([]FileInfo, error) {
 	}
 	for _, e := range entries {
 		filePath := dirpath + "/" + e.Name()
-		path := dirpath + e.Name()
-		f := FileInfo{Path: path, IsDir: e.IsDir()}
+		f := FileInfo{Path: dirpath, IsDir: e.IsDir(), Name: e.Name()}
 		if !e.IsDir() {
 			fileContent, err := readFile(filePath)
 			if err != nil {
@@ -82,11 +84,12 @@ func readFile(filePath string) ([]byte, error) {
 	return content, nil
 }
 
-func mapToJson(files []FileInfo) ([]byte, error) {
+func mapToJson(files []FileInfo, path string) ([]byte, error) {
 	resp := Message{
 		Event: "server-send-files",
 		Data: map[string]interface{}{
 			"files": files,
+			"dir":   path,
 		},
 	}
 	return json.Marshal(resp)
