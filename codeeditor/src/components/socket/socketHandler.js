@@ -16,8 +16,7 @@ export default function socketEventHandler(event) {
 
 function recivingFilesFromServer(data) {
   const files = data["files"];
-  const dir = data["dir"];
-  console.log("directory From server: " + dir);
+
   try {
     let localFiles = localStorage.getItem("files");
     if (localFiles === null) {
@@ -27,15 +26,8 @@ function recivingFilesFromServer(data) {
     }
 
     localFiles = JSON.parse(localFiles);
-    for (let i = 0; i < localFiles.length; i++) {
-      const file = localFiles[i];
-      const filePath = file.path + "/" + file.name;
-      if (filePath === dir) {
-        console.log("changed localfiles");
-        file["files"] = files;
-        break;
-      }
-    }
+    console.log("LocalFiles: ", localFiles);
+    console.log("Send files: ", files);
 
     localStorage.setItem("files", JSON.stringify(localFiles));
     document.dispatchEvent(new Event("storage"));

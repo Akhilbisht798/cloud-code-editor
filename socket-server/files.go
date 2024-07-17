@@ -42,7 +42,7 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	if err != nil {
 		return
 	}
-	f, err := mapToJson(files, path)
+	f, err := mapToJson(files)
 	if err != nil {
 		log.Println(err)
 		return
@@ -84,12 +84,11 @@ func readFile(filePath string) ([]byte, error) {
 	return content, nil
 }
 
-func mapToJson(files []FileInfo, path string) ([]byte, error) {
+func mapToJson(files []FileInfo) ([]byte, error) {
 	resp := Message{
 		Event: "server-send-files",
 		Data: map[string]interface{}{
 			"files": files,
-			"dir":   path,
 		},
 	}
 	return json.Marshal(resp)
