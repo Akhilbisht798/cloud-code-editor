@@ -50,8 +50,8 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	conn.WriteMessage(websocket.TextMessage, []byte(f))
 }
 
-func readDir(dirpath string) ([]FileInfo, error) {
-	files := make([]FileInfo, 0)
+func readDir(dirpath string) (map[string]FileInfo, error) {
+	files := make(map[string]FileInfo)
 	//base := "/home/akhil"
 
 	entries, err := os.ReadDir(dirpath)
@@ -69,7 +69,7 @@ func readDir(dirpath string) ([]FileInfo, error) {
 			}
 			f.Content = string(fileContent)
 		}
-		files = append(files, f)
+		files[filePath] = f
 	}
 
 	return files, nil
@@ -84,7 +84,7 @@ func readFile(filePath string) ([]byte, error) {
 	return content, nil
 }
 
-func mapToJson(files []FileInfo) ([]byte, error) {
+func mapToJson(files map[string]FileInfo) ([]byte, error) {
 	resp := Message{
 		Event: "server-send-files",
 		Data: map[string]interface{}{

@@ -26,8 +26,17 @@ function recivingFilesFromServer(data) {
     }
 
     localFiles = JSON.parse(localFiles);
-    console.log("LocalFiles: ", localFiles);
-    console.log("Send files: ", files);
+
+    const tempFile = Object.values(files)[0];
+    if (localFiles[String(tempFile.path)] !== undefined) {
+      localFiles[String(tempFile.path)].files = true;
+    }
+
+    for (const key in files) {
+      if (!localFiles.hasOwnProperty(key)) {
+        localFiles[key] = files[key];
+      }
+    }
 
     localStorage.setItem("files", JSON.stringify(localFiles));
     document.dispatchEvent(new Event("storage"));
@@ -44,6 +53,7 @@ export function requestFiles(path) {
     },
   };
   WS.send(JSON.stringify(t));
+  console.log("Send Files");
 }
 
 //TODO: handle reciving command from server.
