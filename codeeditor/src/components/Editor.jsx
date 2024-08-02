@@ -3,12 +3,11 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
-import { useState } from "react";
 import { fileChanged } from "./socket/socketHandler";
+import useFile from "../state/file";
 
 export default function Editor() {
-  //context apis
-  const [file, setFile] = useState(null);
+  const { file } = useFile()
 
   function onChange(change) {
     console.log("change:", change);
@@ -17,8 +16,11 @@ export default function Editor() {
   return (
     <AceEditor
       mode="java"
-      value="hello"
+      value={file?.content}
       fontSize="16"
+      // height="100%"
+      // width="100%"
+      //style={{ position: "relative", height: "100%", width: "100%" }}
       theme="github"
       onChange={onChange}
       name="editor"

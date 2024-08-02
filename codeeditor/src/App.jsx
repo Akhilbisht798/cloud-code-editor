@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Editor from "./components/Editor";
 import WS from "./components/socket/socket";
 import FileExplorer from "./components/FileExplorer/FileExplorer";
+import Terminal from "./components/Terminal";
 
 export default function App() {
   useEffect(() => {
@@ -15,12 +16,18 @@ export default function App() {
 
   return (
     <>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>;
       <div className=" flex ">
-        <FileExplorer />
-        <Editor />
+        <div className="w-1/4">
+          <FileExplorer />
+        </div>
+        <Editor className="w-3/4" />
       </div>
-      <button onClick={onClickHandler}>Send Command</button>
+      <div>
+        <Terminal />
+      </div>
+      <div>
+        <button onClick={onClickHandler}>Send Command</button>
+      </div>
     </>
   );
 }

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { requestFiles } from "../socket/socketHandler";
 import { Editor } from "ace-builds";
+import useFile from "../../state/file";
 
 export default function FileComponent({ file, dictFiles }) {
   const [childFiles, setChildFiles] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const { setFile } = useFile()
 
   function getChildFiles() {
     const searchValue = file.path + "/" + file.name;
@@ -43,6 +45,7 @@ export default function FileComponent({ file, dictFiles }) {
       getChildFiles();
     } else {
       //File handling.
+      setFile(file)
       console.log("Is file");
     }
   }
