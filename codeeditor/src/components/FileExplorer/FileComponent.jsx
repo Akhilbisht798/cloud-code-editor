@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { requestFiles } from "../socket/socketHandler";
+import { Editor } from "ace-builds";
 
-export default function FileComponent({ file, dictFiles, depth = 0 }) {
+export default function FileComponent({ file, dictFiles }) {
   const [childFiles, setChildFiles] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   function getChildFiles() {
     const searchValue = file.path + "/" + file.name;
@@ -27,34 +29,44 @@ export default function FileComponent({ file, dictFiles, depth = 0 }) {
     if (file.isDir && file.files === undefined) {
       console.log("requesting files");
       requestFiles(filePath);
+      if (!isExpanded) {
+        getChildFiles();
+        setIsExpanded(true);
+      }
     }
     if (file.isDir && file.files) {
+      if (isExpanded) {
+        // delete all files below it.
+        return;
+      }
+      // else expand the files.
       getChildFiles();
     } else {
+      //File handling.
       console.log("Is file");
     }
   }
   return (
     <>
-      <div
+      <li
         id={file.path + "/" + file.name}
         data-parent={file.path}
         onClick={onClickHandler}
-        style={{ paddingLeft: `${depth * "1rem"}` }}
         className="cursor-pointer"
       >
         {file.name}
-      </div>
-      <div>
-        {childFiles.map((childFile) => (
-          <FileComponent
-            file={childFile}
-            dictFiles={dictFiles}
-            key={childFile.path + "/" + childFile.name}
-            depth={depth + 1}
-          />
-        ))}
-      </div>
+      </li>
+      {file.isDir ? (
+        <ul>
+          {childFiles.map((childFile) => (
+            <FileComponent
+              file={childFile}
+              dictFiles={dictFiles}
+              key={childFile.path + "/" + childFile.name}
+            />
+          ))}
+        </ul>
+      ) : null}
     </>
   );
 }

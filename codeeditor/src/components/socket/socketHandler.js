@@ -56,6 +56,19 @@ export function requestFiles(path) {
   console.log("Send Files");
 }
 
+export function fileChanged(file) {
+  const t = {
+    event: "file-changes",
+    data: {
+      file: file.path,
+      content: file.content,
+    },
+  };
+
+  WS.send(JSON.stringify(WS));
+  console.log("Changes send");
+}
+
 //TODO: handle reciving command from server.
 function commandResponseHandler(data) {
   const response = data["response"];

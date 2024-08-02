@@ -16,8 +16,10 @@ export default function App() {
   return (
     <>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>;
-      <Editor />
-      <FileExplorer />
+      <div className=" flex ">
+        <FileExplorer />
+        <Editor />
+      </div>
       <button onClick={onClickHandler}>Send Command</button>
     </>
   );
