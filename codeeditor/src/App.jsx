@@ -16,17 +16,16 @@ export default function App() {
 
   return (
     <>
-      <div className=" flex ">
-        <div className="w-1/4">
+      <div className=" flex gap-3 resize-y overflow-auto min-h-10">
+        <div className="w-1/4 resize-x overflow-auto">
           <FileExplorer />
         </div>
-        <Editor className="w-3/4" />
+        <div className="w-3/4 ">
+          <Editor  />
+        </div>
       </div>
-      <div>
+      <div className=" resize-y overflow-auto p-4 m-3">
         <Terminal />
-      </div>
-      <div>
-        <button onClick={onClickHandler}>Send Command</button>
       </div>
     </>
   );

@@ -14,17 +14,19 @@ export default function Editor() {
   }
 
   return (
-    <AceEditor
-      mode="java"
-      value={file?.content}
-      fontSize="16"
-      // height="100%"
-      // width="100%"
-      //style={{ position: "relative", height: "100%", width: "100%" }}
-      theme="github"
-      onChange={onChange}
-      name="editor"
-      editorProps={{ $blockScrolling: true }}
-    />
+    <div className=" w-full h-full">
+      <AceEditor
+        mode="java"
+        value={file?.content}
+        fontSize="16"
+        width="100%"
+        height="100%"
+        //style={{ position: "relative", height: "100%", width: "100%" }}
+        theme="github"
+        onChange={onChange}
+        name="editor"
+        editorProps={{ $blockScrolling: true }}
+      />
+    </div>
   );
 }

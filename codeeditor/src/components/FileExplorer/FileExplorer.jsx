@@ -26,7 +26,6 @@ export default function FileExplorer() {
 
   return (
     <>
-      {/* only show root file components. */}
       <ul>
         {files && Object.keys(files).length > 0 ? (
           Object.entries(files).map(([key, value]) => {

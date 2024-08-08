@@ -16,9 +16,6 @@ export default function Terminal() {
   let command = ""
 
   useEffect(() => {
-  });
-
-  useEffect(() => {
     if (isRendered.current) return;
     isRendered.current = true;
 
