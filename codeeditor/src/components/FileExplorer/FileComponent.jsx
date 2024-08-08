@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { requestFiles } from "../socket/socketHandler";
-import { Editor } from "ace-builds";
 import useFile from "../../state/file";
 
 export default function FileComponent({ file, dictFiles }) {

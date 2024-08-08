@@ -32,9 +32,7 @@ export default function FileExplorer() {
           Object.entries(files).map(([key, value]) => {
             if (value.path === RootDir) {
               return (
-                <li key={key}>
                   <FileComponent key={key} file={value} dictFiles={files} />
-                </li>
               );
             }
           })

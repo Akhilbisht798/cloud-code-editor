@@ -1,3 +1,4 @@
+import { term } from "../Terminal";
 import WS from "./socket";
 
 export default function socketEventHandler(event) {
@@ -65,12 +66,24 @@ export function fileChanged(file) {
     },
   };
 
-  WS.send(JSON.stringify(WS));
+  WS.send(JSON.stringify(t));
   console.log("Changes send");
 }
 
+export function sendCommand(command) {
+  const t = {
+    event: "command",
+    data: {
+      command: command,
+    }
+  }
+  console.log("sending ", t)
+
+  WS.send(JSON.stringify(t))
+}
+
 //TODO: handle reciving command from server.
-function commandResponseHandler(data) {
+export function commandResponseHandler(data) {
   const response = data["response"];
-  console.log(response);
+  term.write(response + " ")
 }
