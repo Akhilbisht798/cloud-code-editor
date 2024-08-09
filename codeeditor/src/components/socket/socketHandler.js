@@ -82,7 +82,6 @@ export function sendCommand(command) {
   WS.send(JSON.stringify(t))
 }
 
-//TODO: handle reciving command from server.
 export function commandResponseHandler(data) {
   const response = data["response"];
   term.write(response + " ")

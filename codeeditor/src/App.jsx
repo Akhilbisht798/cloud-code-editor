@@ -9,18 +9,14 @@ export default function App() {
     WS;
   }, []);
 
-  function onClickHandler() {
-    console.log("sending");
-    //let command = "pwd";
-  }
 
   return (
     <>
-      <div className=" flex gap-3 resize-y overflow-auto min-h-10">
+      <div className=" flex gap-3 resize-y overflow-auto min-h-[50vh]">
         <div className="w-1/4 resize-x overflow-auto">
           <FileExplorer />
         </div>
-        <div className="w-3/4 ">
+        <div className="w-3/4">
           <Editor  />
         </div>
       </div>

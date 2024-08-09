@@ -49,26 +49,28 @@ export default function FileComponent({ file, dictFiles }) {
     }
   }
   return (
-    <>
-      <li
+    <div>
+      <p
         id={file.path + "/" + file.name}
         data-parent={file.path}
         onClick={onClickHandler}
         className="cursor-pointer"
       >
         {file.name}
-      </li>
+      </p>
       {file.isDir ? (
         <ul>
-          {childFiles.map((childFile) => (
-            <FileComponent
-              file={childFile}
-              dictFiles={dictFiles}
-              key={childFile.path + "/" + childFile.name}
-            />
-          ))}
+          <li>
+            {childFiles.map((childFile) => (
+              <FileComponent
+                file={childFile}
+                dictFiles={dictFiles}
+                key={childFile.path + "/" + childFile.name}
+              />
+            ))}
+          </li>
         </ul>
       ) : null}
-    </>
+    </div>
   );
 }

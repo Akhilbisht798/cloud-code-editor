@@ -24,9 +24,9 @@ export default function FileExplorer() {
     console.log("files changed");
   }, [files]);
 
+  //TODO: Fix the files not rendering in list form properly.
   return (
     <>
-      <ul>
         {files && Object.keys(files).length > 0 ? (
           Object.entries(files).map(([key, value]) => {
             if (value.path === RootDir) {
@@ -38,7 +38,6 @@ export default function FileExplorer() {
         ) : (
           <div>No file available</div>
         )}
-      </ul>
     </>
   );
 }
