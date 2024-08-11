@@ -25,6 +25,7 @@ export default function FileExplorer() {
   }, [files]);
 
   //TODO: Fix the files not rendering in list form properly.
+  //TODO: inconsistent file explorer.
   return (
     <>
         {files && Object.keys(files).length > 0 ? (

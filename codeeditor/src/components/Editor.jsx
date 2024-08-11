@@ -7,10 +7,15 @@ import { fileChanged } from "./socket/socketHandler";
 import useFile from "../state/file";
 
 export default function Editor() {
-  const { file } = useFile()
+  const { file, setFile } = useFile()
 
+  //TODO: change locally and on server
   function onChange(change) {
-    console.log("change:", change);
+    // let localfiles = localStorage.getItem("files");
+    // localfiles = JSON.parse(localfiles);
+    // localfiles[file.path + "/" + file.name].content = change;
+    // localStorage.setItem("files", JSON.stringify(localfiles));
+    fileChanged(file, change)
   }
 
   function getFileMode() {

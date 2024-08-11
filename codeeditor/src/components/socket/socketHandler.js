@@ -57,12 +57,12 @@ export function requestFiles(path) {
   console.log("Send Files");
 }
 
-export function fileChanged(file) {
+export function fileChanged(file, changes) {
   const t = {
     event: "file-changes",
     data: {
-      file: file.path,
-      content: file.content,
+      file: file.path + "/" + file.name,
+      content: changes,
     },
   };
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -15,6 +16,7 @@ type FileInfo struct {
 	Content string `json:"content,omitempty"`
 }
 
+// TODO: after s3 try to do it for it.
 func fileChanges(msg Message) {
 	path, ok := msg.Data["file"].(string)
 	if !ok {
@@ -50,9 +52,73 @@ func sendFilesToClient(conn *websocket.Conn, msg Message) {
 	conn.WriteMessage(websocket.TextMessage, []byte(f))
 }
 
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+// TODO: Handle this more sensibly like a file can be Dockerfile
+func createFileOrDir(dirpath string, files map[string]FileInfo) (map[string]FileInfo, error) {
+	temp := strings.Split(dirpath, "/")
+	s := temp[len(temp)-1]
+	isFile := false
+	for i := 0; i < len(s); i++ {
+		if s[i] == '.' {
+			isFile = true
+		}
+	}
+	f := FileInfo{Path: dirpath, IsDir: !isFile, Name: s}
+	files[dirpath] = f
+	if !isFile {
+		err := os.MkdirAll(dirpath, 0755)
+		if err != nil {
+			log.Fatal("error creating directory ", err)
+			return nil, err
+		}
+		return files, nil
+	}
+	parentPath := ""
+	for i := 0; i < len(temp)-1; i++ {
+		parentPath += temp[i] + "/"
+	}
+
+	err := os.MkdirAll(parentPath, 0755)
+	if err != nil {
+		log.Fatal("error creating directory ", err)
+		return nil, err
+	}
+
+	file, err := os.Create(dirpath)
+	if err != nil {
+		log.Fatal("error creating file ", err)
+		return nil, err
+	}
+	file.Close()
+	return files, nil
+}
+
 func readDir(dirpath string) (map[string]FileInfo, error) {
 	files := make(map[string]FileInfo)
 	//base := "/home/akhil"
+	exit, err := exists(dirpath)
+	if err != nil {
+		log.Fatal("Error :", err)
+		return nil, err
+	}
+
+	if !exit {
+		f, err := createFileOrDir(dirpath, files)
+		if err != nil {
+			return nil, err
+		}
+		return f, nil
+	}
 
 	entries, err := os.ReadDir(dirpath)
 	if err != nil {
