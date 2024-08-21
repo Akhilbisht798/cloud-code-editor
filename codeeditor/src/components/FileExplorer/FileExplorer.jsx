@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useEffect } from "react";
 import FileComponent from "./FileComponent";
 import { RootDir } from "../socket/socket";
+import useFiles from "../../state/files";
 
 export default function FileExplorer() {
-  const [files, setFiles] = useState(null);
+  const {files, setFiles } = useFiles()
 
   useEffect(() => {
     function handleFilesChanges() {
@@ -21,9 +22,7 @@ export default function FileExplorer() {
   }, []);
 
   useEffect(() => {
-    console.log("files changed");
-  }, [files]);
-
+  }, [files])
   //TODO: Fix the files not rendering in list form properly.
   //TODO: inconsistent file explorer.
   return (
@@ -32,7 +31,7 @@ export default function FileExplorer() {
           Object.entries(files).map(([key, value]) => {
             if (value.path === RootDir) {
               return (
-                  <FileComponent key={key} file={value} dictFiles={files} />
+                  <FileComponent key={key} file={value} />
               );
             }
           })

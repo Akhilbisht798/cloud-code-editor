@@ -5,16 +5,18 @@ import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
 import { fileChanged } from "./socket/socketHandler";
 import useFile from "../state/file";
+import useFiles from "../state/files";
 
 export default function Editor() {
   const { file, setFile } = useFile()
+  const { files, setFiles } = useFiles()
 
   //TODO: change locally and on server
   function onChange(change) {
-    // let localfiles = localStorage.getItem("files");
-    // localfiles = JSON.parse(localfiles);
-    // localfiles[file.path + "/" + file.name].content = change;
-    // localStorage.setItem("files", JSON.stringify(localfiles));
+    // const fileTemp = files;
+    // fileTemp[file.path + "/" + file.name] = change;
+    // setFiles(fileTemp)
+    console.log(change)
     fileChanged(file, change)
   }
 

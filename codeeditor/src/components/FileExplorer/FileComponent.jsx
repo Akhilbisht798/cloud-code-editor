@@ -1,23 +1,25 @@
 import { useState } from "react";
 import { requestFiles } from "../socket/socketHandler";
 import useFile from "../../state/file";
+import useFiles from "../../state/files";
 
-export default function FileComponent({ file, dictFiles }) {
+export default function FileComponent({ file }) {
   const [childFiles, setChildFiles] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const { setFile } = useFile()
+  const { files } = useFiles()
 
   function getChildFiles() {
     const searchValue = file.path + "/" + file.name;
 
     const childFilesArray = [];
 
-    for (const key in dictFiles) {
+    for (const key in files) {
       if (
-        dictFiles.hasOwnProperty(key) &&
-        dictFiles[key].path === searchValue
+        files.hasOwnProperty(key) &&
+        files[key].path === searchValue
       ) {
-        childFilesArray.push(dictFiles[key]);
+        childFilesArray.push(files[key]);
       }
     }
 
@@ -49,28 +51,27 @@ export default function FileComponent({ file, dictFiles }) {
     }
   }
   return (
-    <div>
-      <p
+    <>
+      <div
         id={file.path + "/" + file.name}
         data-parent={file.path}
         onClick={onClickHandler}
         className="cursor-pointer"
       >
         {file.name}
-      </p>
+      </div>
       {file.isDir ? (
         <ul>
           <li>
             {childFiles.map((childFile) => (
               <FileComponent
                 file={childFile}
-                dictFiles={dictFiles}
                 key={childFile.path + "/" + childFile.name}
               />
             ))}
           </li>
         </ul>
       ) : null}
-    </div>
+    </>
   );
 }

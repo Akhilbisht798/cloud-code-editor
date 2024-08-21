@@ -6,4 +6,5 @@
 
 ### New TODO's
 - [ ] Making a better file explorer.
-- [ ] Making sure there is no blood.
+- [ ] for every client run a new docker container.
+- [ ] save user file on s3 and help to retrive them.

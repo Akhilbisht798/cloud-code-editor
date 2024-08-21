@@ -1,1 +1,1 @@
-const hello = super()
+const hello = sup
