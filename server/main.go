@@ -13,5 +13,6 @@ func main() {
 	fmt.Println("Server Starting at Port 3000")
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/kube", kubeHandler)
+	http.HandleFunc("/delete", closeResource)
 	http.ListenAndServe(":3000", nil)
 }

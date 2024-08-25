@@ -10,6 +10,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/kubernetes"
 )
 
 type kubeHandlerResponse struct {
@@ -17,10 +18,15 @@ type kubeHandlerResponse struct {
 	IP     string `json:"ip"`
 }
 
+var clientset *kubernetes.Clientset
+
 func kubeHandler(w http.ResponseWriter, r *http.Request) {
-	clientset, err := getClient()
-	if err != nil {
-		panic(err.Error())
+	var err error
+	if clientset == nil {
+		clientset, err = getClient()
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 	//TODO: Later user request to get these.
 	userId := "1"
@@ -95,6 +101,26 @@ func kubeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write(respData)
+}
+
+// TODO: save the file to s3 before clearing the resoure.
+func closeResource(w http.ResponseWriter, r *http.Request) {
+	var err error
+	if clientset == nil {
+		clientset, err = getClient()
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
+	labels := fmt.Sprintf("user-1-project-1")
+	deploymentClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+	deploymentClient.Delete(context.TODO(), labels, metav1.DeleteOptions{})
+
+	serviceClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+	serviceClient.Delete(context.TODO(), labels, metav1.DeleteOptions{})
+
+	w.Write([]byte("deleted the thing"))
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {

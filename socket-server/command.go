@@ -42,6 +42,7 @@ func runCommand(conn *websocket.Conn) {
 		fmt.Println("Error starting command: ", err)
 	}
 
+	//TODO: safely close these go routine and start new ones on reconnection
 	go func() {
 		scanner := bufio.NewScanner(stdout)
 		for scanner.Scan() {
