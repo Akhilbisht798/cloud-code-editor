@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/dgrijalva/jwt-go/v4"
+	"golang.org/x/crypto/bcrypt"
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
@@ -19,6 +24,8 @@ type kubeHandlerResponse struct {
 }
 
 var clientset *kubernetes.Clientset
+
+const secretKey = "secret"
 
 func kubeHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
@@ -121,6 +128,102 @@ func closeResource(w http.ResponseWriter, r *http.Request) {
 	serviceClient.Delete(context.TODO(), labels, metav1.DeleteOptions{})
 
 	w.Write([]byte("deleted the thing"))
+}
+
+func register(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	var data map[string]string
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 12)
+	user := User{
+		Email:    data["email"],
+		Password: string(password),
+	}
+	DB.Create(&user)
+	jsonData, _ := json.Marshal(user)
+	w.Write(jsonData)
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	var data map[string]string
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	var user User
+
+	DB.Where("email = ?", data["email"]).First(&user)
+	if user.Id == 0 {
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data["password"]))
+	if err != nil {
+		http.Error(w, "wrong password", http.StatusBadRequest)
+		return
+	}
+
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Issuer: strconv.Itoa(user.Id),
+		ExpiresAt: &jwt.Time{
+			Time: time.Now().Add(time.Hour * 24),
+		},
+	})
+
+	token, err := claims.SignedString([]byte(secretKey))
+	if err != nil {
+		http.Error(w, "Could'nt login", http.StatusInternalServerError)
+		return
+	}
+
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HttpOnly: true,
+	}
+
+	http.SetCookie(w, &cookie)
+}
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	cookie, err := r.Cookie("jwt")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	token, err := jwt.ParseWithClaims(cookie.Value, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	claims := token.Claims.(*jwt.StandardClaims)
+
+	var user User
+	DB.Where("id = ?", claims.Issuer).First(&user)
+
+	jsonData, err := json.Marshal(&user)
+	w.Write([]byte(jsonData))
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {

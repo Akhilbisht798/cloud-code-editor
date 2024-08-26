@@ -75,14 +75,13 @@ export function sendCommand(command) {
     event: "command",
     data: {
       command: command,
-    }
-  }
-  console.log("sending ", t)
-
-  WS.send(JSON.stringify(t))
+    },
+  };
+  WS.send(JSON.stringify(t));
 }
 
 export function commandResponseHandler(data) {
   const response = data["response"];
-  term.write(response + " ")
+  console.log(response);
+  term.write(response + " ");
 }
