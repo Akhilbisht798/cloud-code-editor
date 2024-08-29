@@ -23,32 +23,40 @@ type kubeHandlerResponse struct {
 	IP     string `json:"ip"`
 }
 
+type KubeHandlerRequest struct {
+	UserId    string `json:"userId"`
+	ProjectId string `json:"projectId"`
+}
+
 var clientset *kubernetes.Clientset
 
 const secretKey = "secret"
 
 func kubeHandler(w http.ResponseWriter, r *http.Request) {
-	var err error
+	var req KubeHandlerRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	if clientset == nil {
 		clientset, err = getClient()
 		if err != nil {
 			panic(err.Error())
 		}
 	}
-	//TODO: Later user request to get these.
-	userId := "1"
-	projectId := "1"
 	label := map[string]string{
 		"app":       "socket-server",
-		"userID":    userId,
-		"projectID": projectId,
+		"userID":    req.UserId,
+		"projectID": req.ProjectId,
 	}
 
 	deploymentClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   fmt.Sprintf("user-%s-project-%s", userId, projectId),
+			Name:   fmt.Sprintf("user-%s-project-%s", req.UserId, req.ProjectId),
 			Labels: label,
 		},
 		Spec: appsv1.DeploymentSpec{
@@ -65,6 +73,16 @@ func kubeHandler(w http.ResponseWriter, r *http.Request) {
 						{
 							Name:  "socket-server",
 							Image: "akhilbisht798/socket-server",
+							Env: []apiv1.EnvVar{
+								{
+									Name:  "userId",
+									Value: req.UserId,
+								},
+								{
+									Name:  "projectId",
+									Value: req.ProjectId,
+								},
+							},
 						},
 					},
 				},
@@ -76,7 +94,7 @@ func kubeHandler(w http.ResponseWriter, r *http.Request) {
 
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   fmt.Sprintf("user-%s-project-%s", userId, projectId),
+			Name:   fmt.Sprintf("user-%s-project-%s", req.UserId, req.ProjectId),
 			Labels: label,
 		},
 		Spec: apiv1.ServiceSpec{
@@ -239,4 +257,32 @@ func logout(w http.ResponseWriter, r *http.Request) {
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello world"))
+}
+
+func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
+	var req KubeHandlerRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// prefix := fmt.Sprintf("userId-%s/projectId-%s", req.UserId, req.ProjectId)
+	prefix := fmt.Sprintf("userId-%s/client", req.UserId)
+	fmt.Printf("prefix: %s\n", prefix)
+
+	client := getS3ClientDevelopment()
+	getPresignerClient()
+	urls, err := client.GetPresignedUrls("project", prefix)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	jsonResponse, err := json.Marshal(urls)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonResponse)
 }

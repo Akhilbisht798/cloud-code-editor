@@ -6,9 +6,20 @@ import (
 	"net/http"
 )
 
-//var addr = flag.String("addr", "localhost:8080", "http service address")
+// var addr = flag.String("addr", "localhost:8080", "http service address")
+const SERVER = "http://localhost:3000"
+
+var userId string
+var projectId string
 
 func main() {
+	// userId = os.Getenv("userId")
+	// projectId = os.Getenv("projectId")
+	userId = "1"
+	projectId = "1"
+
+	getFilesFromS3(userId, projectId)
+
 	log.Print("Server Starting")
 	//flag.Parse()
 	log.SetFlags(0)

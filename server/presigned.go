@@ -14,6 +14,17 @@ type Presigner struct {
 	PresignClient *s3.PresignClient
 }
 
+var presignerClient *Presigner
+
+func getPresignerClient() {
+	s3Client := getS3ClientDevelopment()
+	client := s3.NewPresignClient(s3Client.Client)
+	signer := &Presigner{
+		PresignClient: client,
+	}
+	presignerClient = signer
+}
+
 func (presigner Presigner) putObject(
 	bucketName string, objectKey string, lifetimeSecs int64) (*v4.PresignedHTTPRequest, error) {
 	request, err := presigner.PresignClient.PresignPutObject(context.TODO(), &s3.PutObjectInput{

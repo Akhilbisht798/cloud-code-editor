@@ -1,6 +1,2 @@
-### Readme
-- [Kubernetes](https://trstringer.com/connect-to-kubernetes-from-go/)
-- [handling](https://github.com/kubernetes/client-go/tree/master/examples/in-cluster-client-configuration)
-}
-}
-- https://stackoverflow.com/questions/67575681/is-aws-go-sdk-v2-integrated-with-local-minio-server
+### Running minIO docker container
+- docker run -p 9000:9000 -p 9001:9001 -e "MINIO_ROOT_USER=ROOT" -e "MINIO_ROOT_PASSWORD=password" minio/minio server /data --console-address ":9001"                                  ─╯

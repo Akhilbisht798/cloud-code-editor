@@ -11,8 +11,6 @@ func int32ptr(i int32) *int32 {
 
 func main() {
 	// dbConnect()
-	s3client := getS3ClientDevelopment()
-	s3client.ListObjects("project", "client")
 	fmt.Println("Server Starting at Port 3000")
 	http.HandleFunc("/api", rootHandler)
 	http.HandleFunc("/api/kube", kubeHandler)
@@ -22,5 +20,7 @@ func main() {
 	http.HandleFunc("/api/login", login)
 	http.HandleFunc("/api/user", getUser)
 	http.HandleFunc("/api/logout", logout)
+
+	http.HandleFunc("/api/getUserFiles", S3PresignedGetURLHandler)
 	http.ListenAndServe(":3000", nil)
 }

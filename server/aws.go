@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -13,8 +12,6 @@ import (
 type S3Client struct {
 	Client *s3.Client
 }
-
-var presignerClient *Presigner
 
 func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) ([]string, error) {
 	var urls []string
@@ -30,9 +27,7 @@ func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) ([]s
 		}
 
 		for _, obj := range page.Contents {
-			relativePath := strings.TrimPrefix(*obj.Key, prefix)
-			file := fmt.Sprintf("- %s\n", relativePath)
-			url, err := presignerClient.getObject(bucketName, file, int64(5))
+			url, err := presignerClient.getObject(bucketName, *obj.Key, int64(5))
 			if err != nil {
 				panic(err.Error())
 			}
@@ -76,21 +71,6 @@ func createBucket() {
 		fmt.Println(err.Error())
 		return
 	}
-}
-
-func getObject() {
-	s3Client := getS3ClientDevelopment()
-	client := s3.NewPresignClient(s3Client.Client)
-	signer := &Presigner{
-		PresignClient: client,
-	}
-	presignerClient = signer
-	// obj, err := presigner.getObject("project", "client/index.html", int64(5))
-	// if err != nil {
-	// 	fmt.Println("error: getting presgined get object")
-	// 	return
-	// }
-	// fmt.Println(obj.URL)
 }
 
 // func getS3Client() *s3.Client {

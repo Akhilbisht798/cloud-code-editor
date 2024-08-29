@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -14,6 +18,32 @@ type FileInfo struct {
 	Name    string `json:"name"`
 	IsDir   bool   `json:"isDir"`
 	Content string `json:"content,omitempty"`
+}
+
+func getFilesFromS3(userId, projectId string) {
+	data := map[string]string{
+		"userId":    userId,
+		"projectId": projectId,
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	url := SERVER + "/api/getUserFiles"
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	fmt.Println(string(body))
 }
 
 // TODO: after s3 try to do it for it.
