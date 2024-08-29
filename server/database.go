@@ -17,5 +17,6 @@ func dbConnect() {
 		panic("error connection to db")
 	}
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Project{})
 	DB = db
 }

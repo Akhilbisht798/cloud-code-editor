@@ -226,6 +226,17 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(jsonData))
 }
 
+func logout(w http.ResponseWriter, r *http.Request) {
+	cookie := &http.Cookie{
+		Name:     "jwt",
+		Value:    "/",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
+	http.SetCookie(w, cookie)
+}
+
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello world"))
 }
