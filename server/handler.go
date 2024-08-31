@@ -266,8 +266,8 @@ func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// prefix := fmt.Sprintf("userId-%s/projectId-%s", req.UserId, req.ProjectId)
-	prefix := fmt.Sprintf("userId-%s/client", req.UserId)
+	prefix := fmt.Sprintf("userId-%s/projectId-%s", req.UserId, req.ProjectId)
+	// prefix := fmt.Sprintf("userId-%s/client", req.UserId)
 	fmt.Printf("prefix: %s\n", prefix)
 
 	client := getS3ClientDevelopment()
