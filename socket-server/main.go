@@ -18,8 +18,8 @@ func main() {
 	userId = "1"
 	projectId = "1"
 
-	// getFilesFromS3(userId, projectId)
-	handleFilesFromS3()
+	getFilesFromS3(userId, projectId)
+	// handleFilesFromS3()
 
 	log.Print("Server Starting")
 	//flag.Parse()

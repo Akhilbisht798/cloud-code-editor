@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -20,7 +19,7 @@ type FileInfo struct {
 	Content string `json:"content,omitempty"`
 }
 
-func getFilesFromS3(userId, projectId string) []string {
+func getFilesFromS3(userId, projectId string) {
 	data := map[string]string{
 		"userId":    userId,
 		"projectId": projectId,
@@ -28,61 +27,54 @@ func getFilesFromS3(userId, projectId string) []string {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return
 	}
 	url := SERVER + "/api/getUserFiles"
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	urls := make(map[string]string)
+	err = json.NewDecoder(resp.Body).Decode(&urls)
 	if err != nil {
 		log.Println(err.Error())
-		return nil
+		return
 	}
-	if len(body) > 2 {
-		body = body[1 : len(body)-1]
+
+	for k, v := range urls {
+		fmt.Printf("%s:%s\n", k, v)
 	}
-	arr := strings.Split(string(body), `"`)
-	urls := []string{}
-	for _, val := range arr {
-		if val != "," {
-			urls = append(urls, val)
-		}
-	}
-	return urls
 }
 
-func handleFilesFromS3() {
-	urls := getFilesFromS3("1", "1")
+// func handleFilesFromS3() {
+// urls := getFilesFromS3("1", "1")
 
-	for _, url := range urls {
-		fmt.Println(url)
-	}
+// for _, url := range urls {
+// 	fmt.Println(url)
+// }
 
-	for i, url := range urls {
-		if url == "" {
-			continue
-		}
-		fmt.Println(i)
-		resp, err := http.Get(url)
-		if err != nil {
-			log.Println(err.Error())
-			return
-		}
-		defer resp.Body.Close()
+// for i, val := range urls {
+// 	if val == "" {
+// 		continue
+// 	}
+// 	// resp, err := http.Get(val)
+// 	// if err != nil {
+// 	// 	log.Println(err.Error())
+// 	// 	return
+// 	// }
+// 	// defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-		fmt.Printf(string(body))
-	}
-}
+// 	// body, err := io.ReadAll(resp.Body)
+// 	// if err != nil {
+// 	// 	fmt.Println(err.Error())
+// 	// 	return
+// 	// }
+// 	// fmt.Printf(string(body))
+// }
+// }
 
 // TODO: after s3 try to do it for it.
 func fileChanges(msg Message) {

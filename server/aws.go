@@ -13,8 +13,10 @@ type S3Client struct {
 	Client *s3.Client
 }
 
-func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) ([]string, error) {
-	var urls []string
+func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) (map[string]string, error) {
+	// var urls []string
+	vals := make(map[string]string)
+
 	paginator := s3.NewListObjectsV2Paginator(s3Client.Client, &s3.ListObjectsV2Input{
 		Bucket: aws.String(bucketName),
 		Prefix: aws.String(prefix),
@@ -31,10 +33,11 @@ func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) ([]s
 			if err != nil {
 				panic(err.Error())
 			}
-			urls = append(urls, url.URL)
+			// urls = append(urls, url.URL)
+			vals[url.URL] = *obj.Key
 		}
 	}
-	return urls, nil
+	return vals, nil
 }
 
 func getS3ClientDevelopment() S3Client {
