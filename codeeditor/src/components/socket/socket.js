@@ -1,7 +1,7 @@
 import socketEventHandler, { requestFiles } from "./socketHandler";
 
 const WS = new WebSocket("ws://localhost:5000/ws");
-export const RootDir = "../client";
+export const RootDir = "userId-1/client";
 
 WS.onopen = function () {
   console.log("Connection opened.");

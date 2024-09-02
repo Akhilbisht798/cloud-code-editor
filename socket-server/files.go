@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gorilla/websocket"
@@ -45,36 +46,31 @@ func getFilesFromS3(userId, projectId string) {
 	}
 
 	for k, v := range urls {
-		fmt.Printf("%s:%s\n", k, v)
+		saveFileFromS3(v, k)
 	}
 }
 
-// func handleFilesFromS3() {
-// urls := getFilesFromS3("1", "1")
+func saveFileFromS3(path string, url string) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
+		return err
+	}
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	f.Write(body)
 
-// for _, url := range urls {
-// 	fmt.Println(url)
-// }
-
-// for i, val := range urls {
-// 	if val == "" {
-// 		continue
-// 	}
-// 	// resp, err := http.Get(val)
-// 	// if err != nil {
-// 	// 	log.Println(err.Error())
-// 	// 	return
-// 	// }
-// 	// defer resp.Body.Close()
-
-// 	// body, err := io.ReadAll(resp.Body)
-// 	// if err != nil {
-// 	// 	fmt.Println(err.Error())
-// 	// 	return
-// 	// }
-// 	// fmt.Printf(string(body))
-// }
-// }
+	return nil
+}
 
 // TODO: after s3 try to do it for it.
 func fileChanges(msg Message) {
