@@ -1,28 +1,32 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { File } from "../../interface";
 import { useProjectFiles } from "../../state/projectFilesState";
 import { requestFiles } from "../socket/socketHandler";
+import useWebSocket from "../../hooks/useWebSocket";
 
 const FileComponent: FC<File> = (props) => {
+  const ws = useWebSocket();
   const { path, name, isDir } = props;
   const [expand, setExpand] = useState(false);
   const [childFiles, setChildFiles] = useState<File[]>([]);
   const { files, updateFile } = useProjectFiles();
 
-  function getChildFiles(): File[] {
+  function getChildFiles() {
     const searchValue = path + "/" + name;
+
     const childFilesArray: File[] = [];
 
     for (const key in files) {
-      if (
-        Object.prototype.hasOwnProperty.call(files, key) &&
-        files[key].path === searchValue
-      ) {
+      if (files[key].path === searchValue) {
         childFilesArray.push(files[key]);
       }
     }
 
-    return childFilesArray;
+    for (let i = 0; i < childFilesArray.length; i++) {
+      console.log(childFilesArray[i]);
+    }
+
+    setChildFiles(childFilesArray);
   }
 
   function onClickHandler(e: React.MouseEvent<HTMLDivElement>) {
@@ -30,12 +34,20 @@ const FileComponent: FC<File> = (props) => {
     const filePath = target.id;
     const file = files[filePath];
     if (isDir && file.hasFiles) {
+      // console.log("Child Files: ", childFiles);
       setExpand(!expand);
     } else if (isDir) {
-      console.log("getting files");
       requestFiles(ws, filePath);
+      updateFile(filePath, { hasFiles: true });
     }
   }
+
+  useEffect(() => {
+    if (isDir && !childFiles.length) {
+      getChildFiles();
+    }
+  }, [files]);
+  // console.log("All Files: ", files);
 
   if (isDir) {
     return (

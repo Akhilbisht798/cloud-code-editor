@@ -27,6 +27,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
+	log.Println("Socket new user connected")
 	defer c.Close()
 	runCommand(c)
 	for {
@@ -35,10 +36,15 @@ func echo(w http.ResponseWriter, r *http.Request) {
 			log.Println("read:", err)
 			break
 		}
+		if mt == websocket.CloseMessage {
+			log.Println("closing the websocket connection")
+			break
+		}
 		if mt == websocket.TextMessage {
 			eventHandler(c, message)
 		}
 	}
+	log.Println("closing the websocket connection")
 }
 
 func eventHandler(conn *websocket.Conn, message []byte) {

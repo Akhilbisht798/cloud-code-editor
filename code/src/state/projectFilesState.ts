@@ -15,10 +15,12 @@ export const useProjectFiles = create<ProjectFiles>((set) => ({
     })),
   updateFile: (path, updates) =>
     set((state) => ({
-      ...state.files,
-      [path]: {
-        ...state.files[path],
-        ...updates,
+      files: {
+        ...state.files,
+        [path]: {
+          ...state.files[path],
+          ...updates,
+        },
       },
     })),
 }));
