@@ -3,6 +3,7 @@ import { File } from "../interface";
 import FileComponent from "./ProjectFiles/FileComponent";
 import useWebSocket from "../hooks/useWebSocket";
 import SocketProvider from "../context/socketContextProvider";
+import Editor from "./editor/CodeEditor";
 
 const Project: FC = () => {
   const ws = useWebSocket()
@@ -16,6 +17,7 @@ const Project: FC = () => {
     <div>
       <SocketProvider.Provider value={{ ws }}>
         <FileComponent {...rootFile} />
+        <Editor />
       </SocketProvider.Provider>
     </div>
   );

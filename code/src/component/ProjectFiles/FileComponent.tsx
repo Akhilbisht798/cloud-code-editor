@@ -3,14 +3,16 @@ import { File } from "../../interface";
 import { useProjectFiles } from "../../state/projectFilesState";
 import { requestFiles } from "../socket/socketHandler";
 import { useContext } from "react";
+import { useCurrentFile } from "../../state/currentFile";
 import SocketProvider from "../../context/socketContextProvider";
 
 const FileComponent: FC<File> = (props) => {
-  const { ws }= useContext(SocketProvider);
+  const { ws } = useContext(SocketProvider);
   const { path, name, isDir } = props;
   const [expand, setExpand] = useState(false);
   const [childFiles, setChildFiles] = useState<File[]>([]);
   const { files, updateFile } = useProjectFiles();
+  const { setCurrentFile } = useCurrentFile();
 
   function getChildFiles() {
     const searchValue = path + "/" + name;
@@ -21,10 +23,6 @@ const FileComponent: FC<File> = (props) => {
       if (files[key].path === searchValue) {
         childFilesArray.push(files[key]);
       }
-    }
-
-    for (let i = 0; i < childFilesArray.length; i++) {
-      console.log(childFilesArray[i]);
     }
 
     setChildFiles(childFilesArray);
@@ -40,6 +38,8 @@ const FileComponent: FC<File> = (props) => {
     } else if (isDir) {
       requestFiles(ws, filePath);
       updateFile(filePath, { hasFiles: true });
+    } else if (!isDir) {
+      setCurrentFile({ path, isDir, name, content: file.content });
     }
   }
 
@@ -75,7 +75,7 @@ const FileComponent: FC<File> = (props) => {
 
   return (
     <div id={path + "/" + name} data-parent={path} onClick={onClickHandler}>
-      <span>📄 {name}</span>
+      <span id={path + "/" + name}>📄 {name}</span>
     </div>
   );
 };
