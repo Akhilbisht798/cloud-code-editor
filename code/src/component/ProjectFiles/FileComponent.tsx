@@ -2,10 +2,11 @@ import React, { FC, useEffect, useState } from "react";
 import { File } from "../../interface";
 import { useProjectFiles } from "../../state/projectFilesState";
 import { requestFiles } from "../socket/socketHandler";
-import useWebSocket from "../../hooks/useWebSocket";
+import { useContext } from "react";
+import SocketProvider from "../../context/socketContextProvider";
 
 const FileComponent: FC<File> = (props) => {
-  const ws = useWebSocket();
+  const { ws }= useContext(SocketProvider);
   const { path, name, isDir } = props;
   const [expand, setExpand] = useState(false);
   const [childFiles, setChildFiles] = useState<File[]>([]);

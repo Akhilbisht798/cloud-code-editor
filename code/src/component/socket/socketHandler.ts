@@ -1,7 +1,7 @@
 import { File } from "../../interface";
 
-export function requestFiles(ws: WebSocket | null, path: string) {
-  if (ws === null) return;
+export function requestFiles(ws: WebSocket | null | undefined, path: string) {
+  if (ws === null || ws === undefined) return;
   const t = {
     event: "send-files",
     data: {
