@@ -1,16 +1,21 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import { Editor } from "@monaco-editor/react";
 import { useCurrentFile } from "../../state/currentFile";
 import { useProjectFiles } from "../../state/projectFilesState";
+import { sendFileChanges } from '../socket/socketHandler'
+import SocketProvider from "../../context/socketContextProvider";
 
 const CodeEditor: FC = () => {
   const { file } = useCurrentFile();
   const { updateFile } = useProjectFiles();
+  const { ws } = useContext(SocketProvider);
 
   //TODO: Also send changes to sockekt server.
   function onChangeHandler(change: string | undefined, e: any) {
     const path = file?.path + "/" + file?.name;
     updateFile(path, { content: change });
+    if (file === null) return
+    sendFileChanges(ws, file, change)
   }
 
   function getFileMode() {

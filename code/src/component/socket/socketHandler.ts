@@ -22,7 +22,9 @@ export function sendCommand(ws: WebSocket, command: string): void {
   ws.send(JSON.stringify(t));
 }
 
-export function sendFileChanges(ws: WebSocket, file: File, changes: string) {
+export function sendFileChanges(ws: WebSocket | null | undefined, file: File, changes: string | undefined) {
+  if (ws === null || ws === undefined) return;
+  if (changes === undefined) return;
   const t = {
     event: "file-changes",
     data: {
