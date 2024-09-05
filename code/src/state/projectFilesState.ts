@@ -5,6 +5,7 @@ interface ProjectFiles {
   files: { [key: string]: File };
   setFiles: (file: { [key: string]: File }) => void;
   updateFile: (path: string, updates: Partial<File>) => void;
+  deleteFile: (path: string) => void;
 }
 
 export const useProjectFiles = create<ProjectFiles>((set) => ({
@@ -23,4 +24,11 @@ export const useProjectFiles = create<ProjectFiles>((set) => ({
         },
       },
     })),
+  deleteFile: (path) =>
+    set((state) => {
+      const { [path]: _, ...remainingFiles } = state.files;
+      return {
+        files: remainingFiles,
+      };
+    }),
 }));

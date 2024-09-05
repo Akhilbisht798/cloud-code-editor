@@ -274,3 +274,17 @@ func newFileOrDir(conn *websocket.Conn, msg Message) {
 	}
 	conn.WriteMessage(websocket.TextMessage, resp)
 }
+
+func deleteFileOrDir(msg Message) {
+	fileData, ok := msg.Data["file"].(map[string]interface{})
+	if !ok {
+		fmt.Println("error ", ok)
+		return
+	}
+	filepath := fileData["path"].(string) + "/" + fileData["name"].(string)
+	err := os.RemoveAll(filepath)
+	if err != nil {
+		fmt.Println("error: ", err)
+		return
+	}
+}

@@ -43,6 +43,7 @@ const FileComponent: FC<File> = (props) => {
     }
   }
 
+  console.log(files);
   useEffect(() => {
     if (isDir) {
       getChildFiles();
@@ -85,6 +86,7 @@ const FileComponent: FC<File> = (props) => {
       className="flex justify-between cursor-pointer"
     >
       <span id={path + "/" + name}>📄 {name}</span>
+      <FileOptions file={{ path, name, isDir }} ws={ws} />
     </div>
   );
 };

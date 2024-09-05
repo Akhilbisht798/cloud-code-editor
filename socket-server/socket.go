@@ -64,5 +64,7 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 		fileChanges(msg)
 	case "new-file-or-dir":
 		newFileOrDir(conn, msg)
+	case "delete-file-or-dir":
+		deleteFileOrDir(msg)
 	}
 }

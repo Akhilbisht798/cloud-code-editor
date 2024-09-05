@@ -7,7 +7,8 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { File } from "@/interface";
-import { newFileOrDirChanges } from "../socket/socketHandler";
+import { deleteFileOrDir, newFileOrDirChanges } from "../socket/socketHandler";
+import { useProjectFiles } from "@/state/projectFilesState";
 
 interface FileOptionsInterFace {
   file: File;
@@ -15,7 +16,8 @@ interface FileOptionsInterFace {
 }
 
 const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
-  const { path, name } = file;
+  const { path, name, isDir } = file;
+  const { deleteFile } = useProjectFiles();
 
   function newFileHandler(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
@@ -51,6 +53,63 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
     newFileOrDirChanges(ws, newFolder);
   }
 
+  function deleteFileOrFolder(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    const p = path + "/" + name;
+    if (!isDir) {
+      deleteFileOrDir(ws, file);
+      deleteFile(p);
+      return;
+    }
+    deleteFileOrDir(ws, file);
+    //loop through it.
+    deleteFile(p);
+  }
+
+  if (isDir) {
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button>⋮</button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuItem>
+              <Button
+                className="w-56"
+                variant="outline"
+                id={path + "/" + name}
+                onClick={newFileHandler}
+              >
+                Create a File
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Button
+                id={path + "/" + name}
+                className="w-56"
+                variant="outline"
+                onClick={newFolderHandler}
+              >
+                Create a Folder
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Button
+                id={path + "/" + name}
+                className="w-56"
+                variant="outline"
+                onClick={deleteFileOrFolder}
+              >
+                delete
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>
+    );
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -60,26 +119,11 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
         <DropdownMenuContent className="w-56">
           <DropdownMenuItem>
             <Button
-              className="w-56"
-              variant="outline"
-              id={path + "/" + name}
-              onClick={newFileHandler}
-            >
-              Create a File
-            </Button>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Button
               id={path + "/" + name}
               className="w-56"
               variant="outline"
-              onClick={newFolderHandler}
+              onClick={deleteFileOrFolder}
             >
-              Create a Folder
-            </Button>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Button id={path + "/" + name} className="w-56" variant="outline">
               delete
             </Button>
           </DropdownMenuItem>

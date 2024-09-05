@@ -22,7 +22,11 @@ export function sendCommand(ws: WebSocket, command: string): void {
   ws.send(JSON.stringify(t));
 }
 
-export function sendFileChanges(ws: WebSocket | null | undefined, file: File, changes: string | undefined) {
+export function sendFileChanges(
+  ws: WebSocket | null | undefined,
+  file: File,
+  changes: string | undefined,
+) {
   if (ws === null || ws === undefined) return;
   if (changes === undefined) return;
   const t = {
@@ -36,14 +40,27 @@ export function sendFileChanges(ws: WebSocket | null | undefined, file: File, ch
   ws.send(JSON.stringify(t));
 }
 
-export function newFileOrDirChanges(ws: WebSocket | null | undefined, file: File) {
+export function newFileOrDirChanges(
+  ws: WebSocket | null | undefined,
+  file: File,
+) {
   if (ws === null || ws === undefined) return;
   const t = {
-    event: "new-file-or-dir", 
+    event: "new-file-or-dir",
     data: {
-      file: file
-    }
-  }
-  console.log("Sending new File: ", t)
-  ws.send(JSON.stringify(t))
+      file: file,
+    },
+  };
+  ws.send(JSON.stringify(t));
+}
+
+export function deleteFileOrDir(ws: WebSocket | null | undefined, file: File) {
+  if (ws === null || ws === undefined) return;
+  const t = {
+    event: "delete-file-or-dir",
+    data: {
+      file: file,
+    },
+  };
+  ws.send(JSON.stringify(t));
 }
