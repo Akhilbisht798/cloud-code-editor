@@ -32,9 +32,23 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
       content: "",
     };
     newFileOrDirChanges(ws, newFile);
-    //setFiles({
-    //  [dirPath + "/" + filename] : newFile
-    //})
+  }
+
+  function newFolderHandler(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    const dirName = window.prompt("Enter folder name: ");
+    if (dirName === null) {
+      window.alert("folder name should be provided");
+      return;
+    }
+    const dirPath = path + "/" + name;
+    const newFolder: File = {
+      path: dirPath,
+      isDir: true,
+      name: dirName,
+      content: "",
+    };
+    newFileOrDirChanges(ws, newFolder);
   }
 
   return (
@@ -51,12 +65,17 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
               id={path + "/" + name}
               onClick={newFileHandler}
             >
-              new file
+              Create a File
             </Button>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Button id={path + "/" + name} className="w-56" variant="outline">
-              new folder
+            <Button
+              id={path + "/" + name}
+              className="w-56"
+              variant="outline"
+              onClick={newFolderHandler}
+            >
+              Create a Folder
             </Button>
           </DropdownMenuItem>
           <DropdownMenuItem>

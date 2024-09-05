@@ -81,6 +81,13 @@ func saveFile(path string, content string) error {
 	return nil
 }
 
+func saveDir(path string) error {
+	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
+		return err
+	}
+	return nil
+}
+
 // TODO: after s3 try to do it for it.
 func fileChanges(msg Message) {
 	path, ok := msg.Data["file"].(string)
@@ -232,27 +239,38 @@ func newFileOrDir(conn *websocket.Conn, msg Message) {
 		return
 	}
 	filepath := fileData["path"].(string) + "/" + fileData["name"].(string)
-	// if fileData["isDir"] == false {
-	// 	fmt.Println("IT is a file")
-	// }
-	err := saveFile(filepath, "")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
 	files := make(map[string]FileInfo)
-	file := FileInfo{
-		Path:    fileData["path"].(string),
-		IsDir:   false,
-		Content: "",
-		Name:    fileData["name"].(string),
+	var file FileInfo
+	if fileData["isDir"] == false {
+		err := saveFile(filepath, "")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		file = FileInfo{
+			Path:    fileData["path"].(string),
+			IsDir:   false,
+			Content: "",
+			Name:    fileData["name"].(string),
+		}
+	} else {
+		err := saveDir(filepath)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		file = FileInfo{
+			Path:  fileData["path"].(string),
+			IsDir: true,
+			Name:  fileData["name"].(string),
+		}
 	}
+
 	files[filepath] = file
 	resp, err := mapToJson(files)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("send new file to client")
 	conn.WriteMessage(websocket.TextMessage, resp)
 }
