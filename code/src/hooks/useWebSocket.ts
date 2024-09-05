@@ -30,6 +30,7 @@ const useWebSocket = () => {
       switch (response.event) {
         case "server-send-files":
           setFiles(response.data.files);
+          console.log("New file added to library.", response.data.files);
           break;
         // case "command-response":
         //   handleCommandResponse(response.data);

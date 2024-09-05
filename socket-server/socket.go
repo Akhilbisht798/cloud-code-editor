@@ -62,5 +62,7 @@ func eventHandler(conn *websocket.Conn, message []byte) {
 		sendFilesToClient(conn, msg)
 	case "file-changes":
 		fileChanges(msg)
+	case "new-file-or-dir":
+		newFileOrDir(conn, msg)
 	}
 }

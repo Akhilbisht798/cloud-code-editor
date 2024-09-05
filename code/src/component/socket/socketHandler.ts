@@ -35,3 +35,15 @@ export function sendFileChanges(ws: WebSocket | null | undefined, file: File, ch
 
   ws.send(JSON.stringify(t));
 }
+
+export function newFileOrDirChanges(ws: WebSocket | null | undefined, file: File) {
+  if (ws === null || ws === undefined) return;
+  const t = {
+    event: "new-file-or-dir", 
+    data: {
+      file: file
+    }
+  }
+  console.log("Sending new File: ", t)
+  ws.send(JSON.stringify(t))
+}

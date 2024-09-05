@@ -5,6 +5,7 @@ import { requestFiles } from "../socket/socketHandler";
 import { useContext } from "react";
 import { useCurrentFile } from "../../state/currentFile";
 import SocketProvider from "../../context/socketContextProvider";
+import FileOptions from "./FileOptions";
 
 const FileComponent: FC<File> = (props) => {
   const { ws } = useContext(SocketProvider);
@@ -33,7 +34,6 @@ const FileComponent: FC<File> = (props) => {
     const filePath = target.id;
     const file = files[filePath];
     if (isDir && file.hasFiles) {
-      // console.log("Child Files: ", childFiles);
       setExpand(!expand);
     } else if (isDir) {
       requestFiles(ws, filePath);
@@ -44,17 +44,21 @@ const FileComponent: FC<File> = (props) => {
   }
 
   useEffect(() => {
-    if (isDir && !childFiles.length) {
+    if (isDir) {
       getChildFiles();
     }
   }, [files]);
-  // console.log("All Files: ", files);
 
   if (isDir) {
     return (
       <>
-        <div id={path + "/" + name} data-parent={path} onClick={onClickHandler}>
+        <div
+          id={path + "/" + name}
+          onClick={onClickHandler}
+          className="flex justify-between cursor-pointer"
+        >
           <span id={path + "/" + name}>🖿 {name}</span>
+          <FileOptions file={{ path, name, isDir }} ws={ws} />
         </div>
         <div
           style={{ display: expand ? "block" : "none", paddingLeft: "22px" }}
@@ -74,7 +78,12 @@ const FileComponent: FC<File> = (props) => {
   }
 
   return (
-    <div id={path + "/" + name} data-parent={path} onClick={onClickHandler}>
+    <div
+      id={path + "/" + name}
+      data-parent={path}
+      onClick={onClickHandler}
+      className="flex justify-between cursor-pointer"
+    >
       <span id={path + "/" + name}>📄 {name}</span>
     </div>
   );

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -51,13 +52,6 @@ func getFilesFromS3(userId, projectId string) {
 }
 
 func saveFileFromS3(path string, url string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
-		return err
-	}
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -67,8 +61,23 @@ func saveFileFromS3(path string, url string) error {
 	if err != nil {
 		return err
 	}
-	f.Write(body)
+	err = saveFile(path, string(body))
+	if err != nil {
+		return err
+	}
 
+	return nil
+}
+
+func saveFile(path string, content string) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
+		return err
+	}
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	f.Write([]byte(content))
 	return nil
 }
 
@@ -214,4 +223,36 @@ func mapToJson(files map[string]FileInfo) ([]byte, error) {
 		},
 	}
 	return json.Marshal(resp)
+}
+
+func newFileOrDir(conn *websocket.Conn, msg Message) {
+	fileData, ok := msg.Data["file"].(map[string]interface{})
+	if !ok {
+		fmt.Println("error ", ok)
+		return
+	}
+	filepath := fileData["path"].(string) + "/" + fileData["name"].(string)
+	// if fileData["isDir"] == false {
+	// 	fmt.Println("IT is a file")
+	// }
+	err := saveFile(filepath, "")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	files := make(map[string]FileInfo)
+	file := FileInfo{
+		Path:    fileData["path"].(string),
+		IsDir:   false,
+		Content: "",
+		Name:    fileData["name"].(string),
+	}
+	files[filepath] = file
+	resp, err := mapToJson(files)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("send new file to client")
+	conn.WriteMessage(websocket.TextMessage, resp)
 }

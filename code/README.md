@@ -1,5 +1,8 @@
 # React + TypeScript + Vite
 
+### Shadcn ui component i am planning to use.
+- https://ui.shadcn.com/docs/components/resizable
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
