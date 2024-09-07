@@ -51,7 +51,7 @@ const FileComponent: FC<File> = (props) => {
 
   if (isDir) {
     return (
-      <>
+      <div className="text-[#cccccc] text-sm">
         <div
           id={path + "/" + name}
           onClick={onClickHandler}
@@ -73,7 +73,7 @@ const FileComponent: FC<File> = (props) => {
             />
           ))}
         </div>
-      </>
+      </div>
     );
   }
 

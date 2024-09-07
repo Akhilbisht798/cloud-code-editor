@@ -8,6 +8,10 @@ export const term = new Xterminal({
   cursorBlink: true,
   allowProposedApi: true,
   convertEol: true,
+  theme: {
+    background: "#1e1e1e",
+  },
+  fontSize: 16
 });
 
 const Terminal: FC = () => {
@@ -32,7 +36,7 @@ const Terminal: FC = () => {
         term.write("\n$ ");
       }
       switch (e) {
-        case "\u0003": // Ctrl+C
+        case "\u0003": // Ctrl+C 
           term.write("^C");
           prompt(term);
           break;

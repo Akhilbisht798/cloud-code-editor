@@ -79,32 +79,32 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
           <DropdownMenuTrigger asChild>
             <button>⋮</button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuItem>
+          <DropdownMenuContent className="w-56 bg-[#252526] border-[#3c3c3c] text-[#cccccc]" align="end">
+            <DropdownMenuItem className="hover:bg-[#2a2d2e]" >
               <Button
                 className="w-56"
-                variant="outline"
+                variant="ghost"
                 id={path + "/" + name}
                 onClick={newFileHandler}
               >
                 Create a File
               </Button>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-[#2a2d2e]">
               <Button
                 id={path + "/" + name}
                 className="w-56"
-                variant="outline"
+                variant="ghost"
                 onClick={newFolderHandler}
               >
                 Create a Folder
               </Button>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-[#2a2d2e]">
               <Button
                 id={path + "/" + name}
                 className="w-56"
-                variant="outline"
+                variant="ghost"
                 onClick={deleteFileOrFolder}
               >
                 delete
@@ -122,12 +122,12 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
         <DropdownMenuTrigger asChild>
           <button>⋮</button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuItem>
+        <DropdownMenuContent className="w-56 bg-[#252526] border-[#3c3c3c] text-[#cccccc]" align="end">
+          <DropdownMenuItem className="hover:bg-[#2a2d2e]">
             <Button
               id={path + "/" + name}
               className="w-56"
-              variant="outline"
+              variant="ghost"
               onClick={deleteFileOrFolder}
             >
               delete
