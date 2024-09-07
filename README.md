@@ -1,7 +1,7 @@
 ### TODO
 - [X] store file to docker container.
 - [X] using code editor.
-- [ ] adding add file and folder or delete to file-tree.
+- [X] adding add file and folder or delete to file-tree.
 - [ ] adding terminal
 - [ ] send changes back to s3 after the session
 - [ ] manging the env variable properly

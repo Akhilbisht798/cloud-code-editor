@@ -12,7 +12,11 @@ export function requestFiles(ws: WebSocket | null | undefined, path: string) {
   console.log("file requested");
 }
 
-export function sendCommand(ws: WebSocket, command: string): void {
+export function sendCommand(
+  ws: WebSocket | null | undefined,
+  command: string,
+): void {
+  if (ws === null || ws === undefined) return;
   const t = {
     event: "command",
     data: {
