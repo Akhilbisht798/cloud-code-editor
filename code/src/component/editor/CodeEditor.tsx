@@ -66,6 +66,7 @@ const CodeEditor: FC = () => {
 
   return (
     <>
+      <div>{file?.name}</div>
       <Editor
         value={file?.content}
         height="100%"
