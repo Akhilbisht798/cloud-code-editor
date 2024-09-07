@@ -34,7 +34,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	log.Println("Socket new user connected")
-	runCommand(ctx, c)
+	go runCommand(ctx, c)
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {

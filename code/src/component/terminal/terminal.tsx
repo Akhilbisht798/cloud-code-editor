@@ -23,6 +23,8 @@ const Terminal: FC = () => {
     isRendered.current = true;
 
     term.open(terminalRef.current);
+    term.writeln("Connected to cloud machine.");
+    term.writeln("Happy Coding.");
     term.write("$ ");
 
     term.onData((e) => {

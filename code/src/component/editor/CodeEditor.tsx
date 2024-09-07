@@ -2,7 +2,7 @@ import { FC, useContext } from "react";
 import { Editor } from "@monaco-editor/react";
 import { useCurrentFile } from "../../state/currentFile";
 import { useProjectFiles } from "../../state/projectFilesState";
-import { sendFileChanges } from '../socket/socketHandler'
+import { sendFileChanges } from "../socket/socketHandler";
 import SocketProvider from "../../context/socketContextProvider";
 
 const CodeEditor: FC = () => {
@@ -14,8 +14,8 @@ const CodeEditor: FC = () => {
   function onChangeHandler(change: string | undefined, e: any) {
     const path = file?.path + "/" + file?.name;
     updateFile(path, { content: change });
-    if (file === null) return
-    sendFileChanges(ws, file, change)
+    if (file === null) return;
+    sendFileChanges(ws, file, change);
   }
 
   function getFileMode() {
@@ -66,17 +66,15 @@ const CodeEditor: FC = () => {
 
   return (
     <>
-      <div className=" w-full h-full font-sans ">
-        <Editor
-          value={file?.content}
-          height="75vh"
-          width="75vw"
-          theme="vs-dark"
-          language={getFileMode()}
-          defaultValue="console.log(`hello world`)"
-          onChange={onChangeHandler}
-        />
-      </div>
+      <Editor
+        value={file?.content}
+        height="100%"
+        width="100%"
+        theme="vs-dark"
+        language={getFileMode()}
+        defaultValue="console.log(`hello world`)"
+        onChange={onChangeHandler}
+      />
     </>
   );
 };
