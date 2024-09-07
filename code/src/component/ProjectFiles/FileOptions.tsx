@@ -17,7 +17,7 @@ interface FileOptionsInterFace {
 
 const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
   const { path, name, isDir } = file;
-  const { deleteFile } = useProjectFiles();
+  const { files, deleteFile } = useProjectFiles();
 
   function newFileHandler(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
@@ -62,8 +62,14 @@ const FileOptions: FC<FileOptionsInterFace> = ({ file, ws }) => {
       return;
     }
     deleteFileOrDir(ws, file);
-    //loop through it.
     deleteFile(p);
+
+    const parent = p + "/";
+    Object.keys(files).forEach((filePath) => {
+      if (filePath.startsWith(parent)) {
+        deleteFile(filePath);
+      }
+    });
   }
 
   if (isDir) {

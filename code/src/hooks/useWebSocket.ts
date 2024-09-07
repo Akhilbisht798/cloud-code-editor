@@ -12,14 +12,12 @@ const useWebSocket = () => {
     name: "client",
     isDir: true,
   };
-  // const [projectFiles, setProjectFiles] = useState<File[]>([]);
 
   useEffect(() => {
     ws.current = new WebSocket(SOCKET_SERVER);
 
     ws.current.onopen = () => {
-      console.log("hello world");
-      // requestFiles(ws.current, ROOT_DIR);
+      console.log("web socket connected");
       setFiles({
         [rootFile.path + "/" + rootFile.name]: rootFile,
       });

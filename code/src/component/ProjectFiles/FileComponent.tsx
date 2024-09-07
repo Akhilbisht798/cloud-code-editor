@@ -43,7 +43,6 @@ const FileComponent: FC<File> = (props) => {
     }
   }
 
-  console.log(files);
   useEffect(() => {
     if (isDir) {
       getChildFiles();
