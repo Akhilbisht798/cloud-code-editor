@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -27,9 +28,13 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		log.Print("upgrade:", err)
 		return
 	}
-	log.Println("Socket new user connected")
 	defer c.Close()
-	runCommand(c)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	log.Println("Socket new user connected")
+	runCommand(ctx, c)
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {

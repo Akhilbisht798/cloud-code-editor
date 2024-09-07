@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -18,7 +19,7 @@ func readCommand(msg Message) {
 	commandChan <- command
 }
 
-func runCommand(conn *websocket.Conn) {
+func runCommand(ctx context.Context, conn *websocket.Conn) {
 	cmd := exec.Command("bash")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -44,70 +45,96 @@ func runCommand(conn *websocket.Conn) {
 
 	//TODO: safely close these go routine and start new ones on reconnection
 	go func() {
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			resp := Message{
-				Event: "command-response",
-				Data: map[string]interface{}{
-					"response": line,
-				},
-			}
-			jsonData, err := json.Marshal(resp)
-			if err != nil {
-				log.Fatal("error converting it to json: ", err)
-				continue
-			}
-			err = conn.WriteMessage(websocket.TextMessage, jsonData)
-			if err != nil {
-				log.Fatal("Error writing to websocket: ", err)
-				break
-			}
+		<-ctx.Done()
+		err := cmd.Process.Kill()
+		if err != nil {
+			fmt.Println(err.Error())
+			return
 		}
-
-		if err := scanner.Err(); err != nil {
-			log.Println("error reading stdout: ", err)
-		}
-		stdout.Close()
 	}()
 
 	go func() {
+		defer stdout.Close()
+		scanner := bufio.NewScanner(stdout)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				scanner.Scan()
+				if err := scanner.Err(); err != nil {
+					log.Println("error reading stdout: ", err)
+				}
+				line := scanner.Text()
+
+				resp := Message{
+					Event: "command-response",
+					Data: map[string]interface{}{
+						"response": line,
+					},
+				}
+				jsonData, err := json.Marshal(resp)
+				if err != nil {
+					log.Println("error converting it to json: ", err)
+					continue
+				}
+				err = conn.WriteMessage(websocket.TextMessage, jsonData)
+				if err != nil {
+					log.Println("Error writing to websocket: ", err)
+					return
+				}
+			}
+		}
+
+	}()
+
+	go func() {
+		defer stderr.Close()
 		scanner := bufio.NewScanner(stderr)
-		for scanner.Scan() {
-			line := scanner.Text()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				scanner.Scan()
+				line := scanner.Text()
+				if err := scanner.Err(); err != nil {
+					log.Println("error reading stdout: ", err)
+					return
+				}
 
-			resp := Message{
-				Event: "command-response",
-				Data: map[string]interface{}{
-					"response": line,
-				},
-			}
-			jsonData, err := json.Marshal(resp)
-			if err != nil {
-				log.Fatal("error converting it to json: ", err)
-				continue
-			}
-			err = conn.WriteMessage(websocket.TextMessage, jsonData)
-			if err != nil {
-				log.Fatal("Error writing to websocket: ", err)
-				break
+				resp := Message{
+					Event: "command-response",
+					Data: map[string]interface{}{
+						"response": line,
+					},
+				}
+				jsonData, err := json.Marshal(resp)
+				if err != nil {
+					log.Println("error converting it to json: ", err)
+					continue
+				}
+				err = conn.WriteMessage(websocket.TextMessage, jsonData)
+				if err != nil {
+					log.Println("Error writing to websocket: ", err)
+					return
+				}
 			}
 		}
 
-		if err := scanner.Err(); err != nil {
-			log.Println("error reading stdout: ", err)
-		}
-
-		stderr.Close()
 	}()
 
 	go func() {
 		for {
-			command := <-commandChan
-			_, err := stdin.Write([]byte(command))
-			if err != nil {
-				log.Println("error writing to stdin: ", err)
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				command := <-commandChan
+				_, err := stdin.Write([]byte(command))
+				if err != nil {
+					log.Println("error writing to stdin: ", err)
+				}
 			}
 		}
 	}()
