@@ -29,11 +29,11 @@ const Terminal: FC = () => {
     term.open(terminalRef.current);
     term.writeln("Connected to cloud machine.");
     term.writeln("Happy Coding.");
-    term.write("$ ");
+    term.write('\x1b[1;32m' + "$ ");
 
     term.onData((e) => {
       if (lastChar === "\r" || lastChar === "\n") {
-        term.write("\n$ ");
+        term.write('\n$ ');
       }
       switch (e) {
         case "\u0003": // Ctrl+C 
