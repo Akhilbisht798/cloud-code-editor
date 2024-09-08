@@ -1,5 +1,7 @@
 # React + TypeScript + Vite
 
+https://stackoverflow.com/questions/75148276/email-validation-with-zod
+
 ### Shadcn ui component i am planning to use.
 - https://ui.shadcn.com/docs/components/resizable
 
