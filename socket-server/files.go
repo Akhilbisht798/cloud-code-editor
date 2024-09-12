@@ -21,7 +21,7 @@ type FileInfo struct {
 	Content string `json:"content,omitempty"`
 }
 
-func getFilesFromS3(userId, projectId string) {
+func getFilesFromS3(userId, projectId string) error {
 	data := map[string]string{
 		"userId":    userId,
 		"projectId": projectId,
@@ -29,13 +29,13 @@ func getFilesFromS3(userId, projectId string) {
 	jsonData, err := json.Marshal(data)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return err
 	}
 	url := SERVER + "/api/getUserFiles"
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -43,12 +43,13 @@ func getFilesFromS3(userId, projectId string) {
 	err = json.NewDecoder(resp.Body).Decode(&urls)
 	if err != nil {
 		log.Println(err.Error())
-		return
+		return err
 	}
 
 	for k, v := range urls {
 		saveFileFromS3(v, k)
 	}
+	return nil
 }
 
 func saveFileFromS3(path string, url string) error {
