@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/cloud"
 	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/database"
+	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/infra"
 	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/types"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -18,8 +20,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var kube infra.KubeHandler
+
 type CreateProjectRequest struct {
 	Project string `json:"project"`
+}
+
+type CreateProjectResponse struct {
+	Ip string `json:"ip"`
 }
 
 func CreateProject(w http.ResponseWriter, r *http.Request) {
@@ -57,13 +65,40 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(result.Contents) > 0 {
-		fmt.Println("ALready exists")
+		log.Println("Project Already exits. Starting up the container.")
 	} else {
-		fmt.Println("create a new directory and start with that with readme.md")
+		log.Println("Creating a new Project.")
+		err := cloud.CreateNewProjectS3(key)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
+	if kube.Client == nil {
+		kube, err = infra.GetClient()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
+	ip, err := kube.CreateContainerAndService(user.Email, req.Project)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	output := CreateProjectResponse{
+		Ip: ip,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
-	w.Write([]byte("Created a new project"))
+	err = json.NewEncoder(w).Encode(&output)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +141,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	db := database.DB.Where("email = ?", data["email"]).First(&user)
 	if db.Error != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, db.Error.Error(), http.StatusNotFound)
 		return
 	}
 	if user.Id == 0 {
@@ -166,11 +201,15 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	var user types.User
 	db := database.DB.Where("id = ?", claims.Issuer).First(&user)
 	if db.Error != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, db.Error.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	jsonData, err := json.Marshal(&user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	w.Write([]byte(jsonData))
 }
 
@@ -183,4 +222,41 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, cookie)
+}
+
+type S3PresignedUrlRequest struct {
+	EmailId   string `json:"userId"`
+	ProjectId string `json:"projectId"`
+}
+
+func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
+	var req S3PresignedUrlRequest
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	prefix := fmt.Sprintf("%s/%s", req.EmailId, req.ProjectId)
+	var svc cloud.S3Client
+	if os.Getenv("APP_ENV") == "production" {
+		svc = cloud.GetS3Client()
+	} else {
+		svc = cloud.GetS3ClientDevelopment()
+	}
+	cloud.GetPresignerClient()
+	urls, err := svc.GetPresignedUrls(os.Getenv("BUCKET"), prefix)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	jsonResponse, err := json.Marshal(urls)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonResponse)
 }

@@ -15,9 +15,9 @@ type Presigner struct {
 	PresignClient *s3.PresignClient
 }
 
-var presignerClient *Presigner
+var PresignerClient *Presigner
 
-func getPresignerClient() {
+func GetPresignerClient() {
 	env := os.Getenv("APP_ENV")
 	var s3Client S3Client
 	if env == "production" {
@@ -29,7 +29,7 @@ func getPresignerClient() {
 	signer := &Presigner{
 		PresignClient: client,
 	}
-	presignerClient = signer
+	PresignerClient = signer
 }
 
 func (presigner Presigner) putObject(

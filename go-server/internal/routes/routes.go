@@ -17,5 +17,6 @@ func NewRouter() http.Handler {
 	//If the project is alredy present start that if not create a new one.
 	mux.HandleFunc("/api/start", applyMiddleware(handlers.CreateProject, enableCORS))
 	// mux.HandleFunc("/api/stop", handlers.StopProject)
+	mux.HandleFunc("/api/getUserFiles", applyMiddleware(handlers.S3PresignedGetURLHandler, enableCORS))
 	return mux
 }

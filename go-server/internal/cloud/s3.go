@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -33,7 +34,7 @@ func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) (map
 		}
 
 		for _, obj := range page.Contents {
-			url, err := presignerClient.getObject(bucketName, *obj.Key, int64(5))
+			url, err := PresignerClient.getObject(bucketName, *obj.Key, int64(5))
 			if err != nil {
 				panic(err.Error())
 			}
@@ -72,8 +73,9 @@ func CreateBucket() {
 	var client S3Client
 	if ENV == "production" {
 		client = GetS3Client()
+	} else {
+		client = GetS3ClientDevelopment()
 	}
-	client = GetS3ClientDevelopment()
 	cparams := &s3.CreateBucketInput{
 		Bucket: aws.String("project"),
 	}
@@ -95,4 +97,26 @@ func GetS3Client() S3Client {
 		Client: client,
 	}
 	return c
+}
+
+func CreateNewProjectS3(key string) error {
+	env := os.Getenv("APP_ENV")
+	var client S3Client
+	if env == "production" {
+		client = GetS3Client()
+	} else {
+		client = GetS3ClientDevelopment()
+	}
+	str := "### README.md\nHello World"
+	body := strings.NewReader(str)
+	input := s3.PutObjectInput{
+		Bucket: aws.String(os.Getenv("BUCKET")),
+		Key:    aws.String(key),
+		Body:   body,
+	}
+	_, err := client.Client.PutObject(context.TODO(), &input)
+	if err != nil {
+		return err
+	}
+	return nil
 }
