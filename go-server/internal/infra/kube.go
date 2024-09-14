@@ -23,6 +23,7 @@ func int32ptr(i int32) *int32 {
 	return &i
 }
 
+// TODO: change it according to production
 func GetClient() (KubeHandler, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

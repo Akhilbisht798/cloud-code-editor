@@ -85,7 +85,6 @@ func CreateBucket() {
 		return
 	}
 }
-
 func GetS3Client() S3Client {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -109,9 +108,11 @@ func CreateNewProjectS3(key string) error {
 	}
 	str := "### README.md\nHello World"
 	body := strings.NewReader(str)
+	k := key + "README.md"
+
 	input := s3.PutObjectInput{
 		Bucket: aws.String(os.Getenv("BUCKET")),
-		Key:    aws.String(key),
+		Key:    aws.String(k),
 		Body:   body,
 	}
 	_, err := client.Client.PutObject(context.TODO(), &input)

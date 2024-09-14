@@ -49,7 +49,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 	} else {
 		svc = cloud.GetS3ClientDevelopment()
 	}
-	key := fmt.Sprintf("%s/%s/", user.Email, req.Project)
+	key := fmt.Sprintf("userId-%d/%s/", user.Id, req.Project)
 	fmt.Println(key)
 	maxKey := int32(1)
 
@@ -83,7 +83,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ip, err := kube.CreateContainerAndService(user.Email, req.Project)
+	ip, err := kube.CreateContainerAndService(strconv.Itoa(user.Id), req.Project)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
