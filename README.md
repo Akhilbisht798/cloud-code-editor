@@ -7,3 +7,5 @@
 - [ ] manging the env variable properly
 - [ ] changing server code to be present inside the cluster and then return the clientset.
 - [ ] hosting this on eks [youtube](https://youtu.be/p6xDCz00TxU?si=ZbPXX94Qf8dR482C)
+
+- checking for git
