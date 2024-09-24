@@ -14,11 +14,17 @@ resource "aws_instance" "go-server" {
           sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
           echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.profile
 
+          echo '{jsonencode(aws_subnet.private_subnets[*].id)}' > /home/ubuntu/subnet_ids.json
+
           git clone https://github.com/Akhilbisht798/cloud-code-editor.git /home/ubuntu/
           cd /home/ubuntu/cloud-code-editor/go-server
 
           /usr/local/go/bin/go build -o server .
-          nohup ./server &
+          cat <<EOT > /home/ubuntu/run_server.sh
+          export SUBNET_IDS_FILE="/home/ubuntu/subnet_ids.json"
+
+          cd /home/ubuntu/cloud-code-editor/go-server
+          ./server
           EOF
   tags = {
     Name = "Go-Server"

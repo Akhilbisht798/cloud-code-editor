@@ -23,6 +23,10 @@ resource "aws_subnet" "public_subnets" {
   }
 }
 
+output "public_subnets_ids" {
+  value = aws_subnet.public_subnets[*].id
+}
+
 resource "aws_subnet" "private_subnets" {
   count             = length(var.private_subnets_cidrs)
   vpc_id            = aws_vpc.main.id
@@ -32,6 +36,10 @@ resource "aws_subnet" "private_subnets" {
   tags = {
     Name = "Private Subnet ${count.index + 1}"
   }
+}
+
+output "private_subnets_ids" {
+  value = aws_subnet.private_subnets[*].id
 }
 
 # routing.
@@ -53,5 +61,3 @@ resource "aws_route_table_association" "public_subnet_asso" {
   subnet_id      = element(aws_subnet.public_subnets[*].id, count.index)
   route_table_id = aws_route_table.second_rt.id
 }
-
-
