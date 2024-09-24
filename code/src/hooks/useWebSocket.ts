@@ -13,6 +13,8 @@ const useWebSocket = () => {
   const { setFiles } = useProjectFiles();
 
   const rootFile: File = {
+    // for production if i think it will be "."
+    // and name will be the project name
     path: "..",
     name: "client",
     isDir: true,

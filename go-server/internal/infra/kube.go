@@ -83,6 +83,10 @@ func (c *KubeHandler) CreateContainerAndService(userId string, projectId string)
 									Name:  "projectId",
 									Value: projectId,
 								},
+								{
+									Name:  "SERVER_URL",
+									Value: os.Getenv("SERVER_URL"),
+								},
 							},
 						},
 					},

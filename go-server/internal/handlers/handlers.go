@@ -75,6 +75,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Goal of the below code is to spin the container and return ip
 	if kube.Client == nil {
 		kube, err = infra.GetClient()
 		if err != nil {

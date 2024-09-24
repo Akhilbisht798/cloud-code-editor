@@ -1,25 +1,31 @@
 package main
 
 import (
-	//"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
-// var addr = flag.String("addr", "localhost:8080", "http service address")
-const SERVER = "http://localhost:3000"
-
+var SERVER string
 var userId string
 var projectId string
 
 func main() {
-	// userId = os.Getenv("userId")
-	// projectId = os.Getenv("projectId")
-	userId = "1"
-	projectId = "client"
+	godotenv.Load()
+	SERVER = os.Getenv("SERVER_URL")
+	userId = os.Getenv("userId")
+	projectId = os.Getenv("projectId")
+	if SERVER == "" {
+		fmt.Println("server url not set")
+		return
+	}
+	SERVER = fmt.Sprintf("%s:%s", SERVER, "8080")
 
 	filePath := fmt.Sprintf("%s/%s", userId, projectId)
+	fmt.Println(filePath)
 	err := getFilesFromS3(userId, projectId)
 	if err != nil {
 		fmt.Println("error", err.Error())
@@ -31,9 +37,7 @@ func main() {
 	}
 
 	log.Print("Server Starting")
-	//flag.Parse()
 	log.SetFlags(0)
 	http.HandleFunc("/ws", echo)
-	//log.Fatal(http.ListenAndServe(*addr, nil))
 	log.Fatal(http.ListenAndServe(":5000", nil))
 }
