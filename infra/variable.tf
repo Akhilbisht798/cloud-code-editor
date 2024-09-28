@@ -1,10 +1,10 @@
-variable "aws_access_key" {
-  description = "The IAM public access key"
-}
+# variable "aws_access_key" {
+#   description = "The IAM public access key"
+# }
 
-variable "aws_secret_key" {
-  description = "IAM secret Key"
-}
+# variable "aws_secret_key" {
+#   description = "IAM secret Key"
+# }
 
 variable "aws_region" {
   description = "The AWS region"
@@ -40,11 +40,10 @@ variable "network_interface_id" {
 
 variable "ami" {
   type    = string
-  default = "ami-005e54dee72cc1d00"
+  default = "ami-06ceb6b6dca8ff42f"
 }
 
 variable "instance_type" {
   type    = string
   default = "t2.micro"
 }
-

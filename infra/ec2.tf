@@ -3,7 +3,7 @@ resource "aws_instance" "go-server" {
   instance_type               = var.instance_type
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.public_subnets[0].id
-  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile
+  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
   user_data                   = <<-EOF
           #!/bin/bash
           sudo apt update -y
@@ -22,6 +22,9 @@ resource "aws_instance" "go-server" {
           /usr/local/go/bin/go build -o server .
           cat <<EOT > /home/ubuntu/run_server.sh
           export SUBNET_IDS_FILE="/home/ubuntu/subnet_ids.json"
+          export APP_ENV="production"
+          export BUCKET="user-project-code-storage-798"
+          export SECRET_KEY="secret"
 
           cd /home/ubuntu/cloud-code-editor/go-server
           ./server

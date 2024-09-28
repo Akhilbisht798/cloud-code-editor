@@ -25,7 +25,7 @@ resource "aws_iam_policy_attachment" "ec2_s3_access" {
 resource "aws_iam_policy_attachment" "ec2_ecs_access" {
   name       = "ec2-ecs-access-attachment"
   roles      = [aws_iam_role.ec2_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_iam_policy" "ec2_ecs_custom_policy" {
@@ -41,6 +41,13 @@ resource "aws_iam_policy" "ec2_ecs_custom_policy" {
           "ecs:DescribeClusters",
           "ecs:CreateCluster",
           "ecs:DeleteCluster"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action = [
+          "ec2:DescribeNetworkInterfaces" # Add this action
         ]
         Effect   = "Allow"
         Resource = "*"
