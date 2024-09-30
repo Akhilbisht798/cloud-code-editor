@@ -23,7 +23,7 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 		return "", err
 	}
 	var subnetsIDs []string
-	err = json.Unmarshal(subnetsIDsData, subnetsIDs)
+	err = json.Unmarshal(subnetsIDsData, &subnetsIDs)
 	if err != nil {
 		fmt.Printf("Failed to parse subnetes IDs: %v\n", err)
 		return "", nil
