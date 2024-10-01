@@ -9,6 +9,7 @@ resource "aws_instance" "go-server" {
   instance_type               = var.instance_type
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.public_subnets[0].id
+  security_groups             = [aws_security_group.go-server-sg.id]
   iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
   key_name                    = "loginKeyPair"
   user_data                   = <<-EOF
@@ -19,25 +20,15 @@ resource "aws_instance" "go-server" {
           # Install Go.
           wget https://golang.org/dl/go1.23.1.linux-amd64.tar.gz
           sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
+          echo 'export PATH=$PATH:/usr/local/go/bin' | sudo tee -a /etc/profile /home/ubuntu/.bashrc
+          source /home/ubuntu/.bashrc
           export PATH=$PATH:/usr/local/go/bin
 
           echo '{jsonencode(aws_subnet.public_subnets[*].id)}' > /home/ubuntu/subnet_ids.json
 
           git clone https://github.com/Akhilbisht798/cloud-code-editor.git /home/ubuntu/code
           cd /home/ubuntu/code/go-server
-          cat <<EOT > /home/ubuntu/run_server.sh
-
-          #!/bin/bash
-          export SUBNET_IDS_FILE="/home/ubuntu/subnet_ids.json"
-          export APP_ENV="production"
-          export BUCKET="user-project-code-storage-798"
-          export SECRET_KEY="secret"
-
-          cd /home/ubuntu/code/go-server
-          go run ./cmd/main/
-          EOT
-          chomd +x /home/ubuntu/code/run_server.sh
-          sudo -u ubuntu /home/ubuntu/run_server.sh &
+          sudo -u ubuntu bash -c 'export PATH=$PATH:/usr/local/go/bin && export SUBNET_IDS_FILE="/home/ubuntu/subnet_ids.json" && export APP_ENV="production" && export BUCKET="user-project-code-storage-798" && export SECRET_KEY="secret" && go run ./cmd/main/'
           EOF
   tags = {
     Name = "Go-Server"
