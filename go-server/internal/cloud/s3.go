@@ -86,7 +86,9 @@ func CreateBucket() {
 	}
 }
 func GetS3Client() S3Client {
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithDefaultRegion("us-east-1"),
+	)
 	if err != nil {
 		fmt.Println("Error: loading the aws config")
 		log.Fatal("err")
