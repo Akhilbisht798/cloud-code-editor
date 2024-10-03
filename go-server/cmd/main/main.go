@@ -17,6 +17,7 @@ func main() {
 	router := routes.NewRouter()
 
 	var port = os.Getenv("PORT")
+	log.Printf("%s - Port opened.", port)
 	if port == "" {
 		port = "8080"
 	}
