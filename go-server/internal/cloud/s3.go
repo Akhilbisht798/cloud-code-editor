@@ -91,6 +91,7 @@ func GetS3Client() S3Client {
 		fmt.Println("Error: loading the aws config")
 		log.Fatal("err")
 	}
+	log.Println("S3 Production client created")
 	client := s3.NewFromConfig(cfg)
 	c := S3Client{
 		Client: client,

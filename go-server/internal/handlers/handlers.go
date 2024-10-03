@@ -50,7 +50,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		svc = cloud.GetS3ClientDevelopment()
 	}
 	key := fmt.Sprintf("userId-%d/%s/", user.Id, req.Project)
-	fmt.Println(key)
+	log.Println(key)
 	maxKey := int32(1)
 
 	input := &s3.ListObjectsV2Input{

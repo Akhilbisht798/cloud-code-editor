@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -15,14 +16,12 @@ func main() {
 	database.DbConnect()
 	router := routes.NewRouter()
 
-	var port string
-	if os.Getenv("APP_ENV") == "production" {
-		port = os.Getenv("PORT")
-	} else {
+	var port = os.Getenv("PORT")
+	if port == "" {
 		port = "8080"
 	}
 	addr := fmt.Sprintf(":%s", port)
-	fmt.Printf("Server listening on http://localhost%s\n", addr)
+	log.Printf("Server listening on http://localhost%s\n", addr)
 	err := http.ListenAndServe(addr, router)
 	if err != nil {
 		panic(err)
