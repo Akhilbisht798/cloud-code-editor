@@ -28,7 +28,8 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 		fmt.Printf("Failed to parse subnetes IDs: %v\n", err)
 		return "", nil
 	}
-	cfg, err := config.LoadDefaultConfig(context.TODO())
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithDefaultRegion("us-east-1"))
 	if err != nil {
 		return "", err
 	}
