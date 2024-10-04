@@ -12,15 +12,12 @@ import (
 
 	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/cloud"
 	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/database"
-	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/infra"
 	"github.com/Akhilbisht798/cloud-text-editor/go-server/internal/types"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/dgrijalva/jwt-go/v4"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var kube infra.KubeHandler
 
 type CreateProjectRequest struct {
 	Project string `json:"project"`
@@ -75,16 +72,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Goal of the below code is to spin the container and return ip
-	if kube.Client == nil {
-		kube, err = infra.GetClient()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	ip, err := kube.CreateContainerAndService(strconv.Itoa(user.Id), req.Project)
+	ip, err := cloud.CreateECSContainer(strconv.Itoa(user.Id), req.Project)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
