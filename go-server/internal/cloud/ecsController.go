@@ -46,6 +46,23 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 				AssignPublicIp: types.AssignPublicIpEnabled,
 			},
 		},
+		Overrides: &types.TaskOverride{
+			ContainerOverrides: []types.ContainerOverride{
+				{
+					Name: aws.String("socket-server"),
+					Environment: []types.KeyValuePair{
+						{
+							Name:  aws.String("userId"),
+							Value: aws.String(userId),
+						},
+						{
+							Name:  aws.String("projectId"),
+							Value: aws.String(projectId),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	result, err := client.RunTask(context.TODO(), input)

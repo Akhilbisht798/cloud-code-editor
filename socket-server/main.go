@@ -25,7 +25,7 @@ func main() {
 	SERVER = fmt.Sprintf("%s:%s", SERVER, "8080")
 
 	filePath := fmt.Sprintf("%s/%s", userId, projectId)
-	fmt.Println(filePath)
+	log.Println("filepath: ", filePath)
 	err := getFilesFromS3(userId, projectId)
 	if err != nil {
 		fmt.Println("error", err.Error())
