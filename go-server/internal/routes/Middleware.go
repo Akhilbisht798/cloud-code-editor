@@ -13,7 +13,7 @@ func applyMiddleware(h http.HandlerFunc, middlewares ...Middleware) http.Handler
 
 func enableCORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // Adjust based on your frontend's origin
+		w.Header().Set("Access-Control-Allow-Origin", "*") // Adjust based on your frontend's origin
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
