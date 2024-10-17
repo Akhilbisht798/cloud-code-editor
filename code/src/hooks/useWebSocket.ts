@@ -3,6 +3,7 @@ import { SOCKET_SERVER } from "../global";
 import { File } from "../interface";
 import { useProjectFiles } from "../state/projectFilesState";
 import { term } from "@/component/terminal/terminal";
+import { useCurrentProject } from "@/state/currentProject";
 
 interface CommandResponse {
   response: string;
@@ -11,12 +12,18 @@ interface CommandResponse {
 const useWebSocket = () => {
   const ws = useRef<WebSocket | null>(null);
   const { setFiles } = useProjectFiles();
+  const { rootDir } = useCurrentProject()
+  
+  if (rootDir === null) {
+    console.log("useWebsocket: rootDir is null")
+    return
+  }
 
   const rootFile: File = {
     // for production if i think it will be "."
     // and name will be the project name
-    path: "..",
-    name: "client",
+    path: ".",
+    name: rootDir,
     isDir: true,
   };
 

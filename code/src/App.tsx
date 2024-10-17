@@ -8,7 +8,7 @@ function App() {
   const routes = createBrowserRouter([
     {
       path: "/",
-      element: <Project />,
+      element: <Home />,
     },
     {
       path: "/register",
@@ -17,6 +17,10 @@ function App() {
     {
       path: "/login",
       element: <Login />,
+    },
+    {
+      path: "/project",
+      element: <Project/>,
     },
   ]);
   return <RouterProvider router={routes} />;

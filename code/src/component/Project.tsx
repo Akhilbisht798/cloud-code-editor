@@ -10,12 +10,17 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { useCurrentProject } from "@/state/currentProject";
 
 const Project: FC = () => {
+  const { rootDir } = useCurrentProject()
+  if (rootDir === null) {
+    return <div>Set root directory</div>
+  }
   const ws = useWebSocket();
   const rootFile: File = {
-    path: "..",
-    name: "client",
+    path: ".",
+    name: rootDir,
     isDir: true,
   };
 
