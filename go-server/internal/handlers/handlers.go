@@ -157,15 +157,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie := http.Cookie{
-		Name:     "jwt",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
+	jsonData, err := json.Marshal(map[string]string{"jwt": token})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-
-	http.SetCookie(w, &cookie)
+	w.Write([]byte(jsonData))
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
