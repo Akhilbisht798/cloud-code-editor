@@ -162,6 +162,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		MaxAge:   3600,
 		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
 	}
 
 	http.SetCookie(w, &cookie)
