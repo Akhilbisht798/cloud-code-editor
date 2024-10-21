@@ -165,12 +165,12 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// w.Write([]byte(jsonData))
 
 	cookie := http.Cookie{
-		Name:     "jwt",
-		Value:    token,
-		Path:     "/",
-		MaxAge:   3600,
-		SameSite: http.SameSiteNoneMode,
-		Secure:   true,
+		Name:   "jwt",
+		Value:  token,
+		Path:   "/",
+		MaxAge: 3600,
+		// SameSite: http.SameSiteNoneMode,
+		// Secure:   true,
 	}
 
 	http.SetCookie(w, &cookie)
