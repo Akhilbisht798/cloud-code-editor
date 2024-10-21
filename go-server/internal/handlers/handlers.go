@@ -157,26 +157,25 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonData, err := json.Marshal(map[string]string{"jwt": token})
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Write([]byte(jsonData))
-
-	// cookie := http.Cookie{
-	// 	Name:     "jwt",
-	// 	Value:    token,
-	// 	Path:     "/",
-	// 	MaxAge:   3600,
-	// 	SameSite: http.SameSiteNoneMode,
-	// 	Secure:   true,
+	// jsonData, err := json.Marshal(map[string]string{"jwt": token})
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
 	// }
-
-	// http.SetCookie(w, &cookie)
-	// jsonData, _ := json.Marshal(map[string]string{"message": "cookie set successfully."})
 	// w.Write([]byte(jsonData))
 
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Path:     "/",
+		MaxAge:   3600,
+		SameSite: http.SameSiteNoneMode,
+		Secure:   true,
+	}
+
+	http.SetCookie(w, &cookie)
+	jsonData, _ := json.Marshal(map[string]string{"message": "cookie set successfully."})
+	w.Write([]byte(jsonData))
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
