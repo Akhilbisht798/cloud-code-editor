@@ -35,7 +35,7 @@ func (s3Client S3Client) GetPresignedUrls(bucketName string, prefix string) (map
 
 		for _, obj := range page.Contents {
 			url, err := PresignerClient.getObject(bucketName, *obj.Key, int64(5))
-			log.Println(url.URL)
+			log.Println("URL: ", url.URL)
 			if err != nil {
 				panic(err.Error())
 			}

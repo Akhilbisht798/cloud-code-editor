@@ -253,7 +253,7 @@ func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Println(urls)
+	log.Println("Presigned URLS to send to docker: ", urls)
 
 	w.Header().Set("Content-Type", "application/json")
 	jsonResponse, err := json.Marshal(urls)
