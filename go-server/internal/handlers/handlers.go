@@ -239,7 +239,7 @@ func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prefix := fmt.Sprintf("%s/%s", req.UserId, req.ProjectId)
+	prefix := fmt.Sprintf("userId-%s/%s", req.UserId, req.ProjectId)
 	log.Println("prefix: ", prefix)
 	var svc cloud.S3Client
 	if os.Getenv("APP_ENV") == "production" {
