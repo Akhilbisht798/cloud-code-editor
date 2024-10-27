@@ -22,6 +22,7 @@ type FileInfo struct {
 }
 
 func getFilesFromS3(userId, projectId string) error {
+	log.Println("getting files from s3")
 	data := map[string]string{
 		"userId":    userId,
 		"projectId": projectId,
@@ -37,6 +38,7 @@ func getFilesFromS3(userId, projectId string) error {
 		log.Println(err.Error())
 		return err
 	}
+	log.Println("Fetched presigned urls.")
 	defer resp.Body.Close()
 
 	urls := make(map[string]string)
@@ -45,8 +47,10 @@ func getFilesFromS3(userId, projectId string) error {
 		log.Println(err.Error())
 		return err
 	}
+	log.Println("Length of files: ", urls)
 
 	for k, v := range urls {
+		fmt.Println("Getting file ", k)
 		saveFileFromS3(v, k)
 	}
 	return nil

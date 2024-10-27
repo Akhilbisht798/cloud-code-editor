@@ -226,7 +226,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 type S3PresignedUrlRequest struct {
-	EmailId   string `json:"userId"`
+	UserId    string `json:"userId"`
 	ProjectId string `json:"projectId"`
 }
 
@@ -239,7 +239,8 @@ func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prefix := fmt.Sprintf("%s/%s", req.EmailId, req.ProjectId)
+	prefix := fmt.Sprintf("%s/%s", req.UserId, req.ProjectId)
+	log.Println("prefix: ", prefix)
 	var svc cloud.S3Client
 	if os.Getenv("APP_ENV") == "production" {
 		svc = cloud.GetS3Client()
@@ -252,6 +253,7 @@ func S3PresignedGetURLHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Println(urls)
 
 	w.Header().Set("Content-Type", "application/json")
 	jsonResponse, err := json.Marshal(urls)
