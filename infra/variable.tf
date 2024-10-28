@@ -47,3 +47,9 @@ variable "instance_type" {
   type    = string
   default = "t3.medium"
 }
+
+variable "cloudwatch_group" {
+  type        = string
+  default     = "task_logs_cloudwatch"
+  description = "cloud watch for ecs tasks"
+}
