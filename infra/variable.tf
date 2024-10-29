@@ -25,12 +25,12 @@ variable "private_subnets_cidrs" {
 
 variable "fargate_cpu" {
   type    = string
-  default = "256"
+  default = "1024"
 }
 
 variable "fargate_memory" {
   type    = string
-  default = "512"
+  default = "2048"
 }
 
 variable "network_interface_id" {

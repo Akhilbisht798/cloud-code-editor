@@ -25,12 +25,14 @@ resource "aws_instance" "go-server" {
           export PATH=$PATH:/usr/local/go/bin
 
           echo '${jsonencode(aws_subnet.public_subnets[*].id)}' > /home/ubuntu/subnet_ids.json
+          echo '${jsonencode(aws_security_group.socket-server-sg.id)}' > /home/ubuntu/security_group.json
 
           git clone https://github.com/Akhilbisht798/cloud-code-editor.git /home/ubuntu/code
           cd /home/ubuntu/code/go-server
           sudo -u ubuntu bash -c '
             export PATH=$PATH:/usr/local/go/bin
             export SUBNET_IDS_FILE="/home/ubuntu/subnet_ids.json"
+            export SECURITY_GROUP_FILE="/home/ubuntu/security_group.json"
             export APP_ENV="production"
             export BUCKET=""
             export SECRET_KEY=""

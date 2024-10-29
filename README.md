@@ -14,6 +14,10 @@ A online code editor that let user to create project without creating a developm
 
 <!--- Eraser file: https://app.eraser.io/workspace/w1ZgGjwVBO79jY50hgzj --->
 ### TODO
-- [ ] creating the infra and checking things on it.
-- [ ] send changes back to s3 after the session ends or on closing
-- [ ] checking the infra in aws
+- [x] creating the infra and checking things on it.
+- [ ] having ecs task working properly getting file starting socket-server connecting with
+client
+- [ ] after that works on deletion of running task.
+- [ ] after that improve ui and ux.
+- [ ] after that try to implement ci/cd pipeline for the project. 
+

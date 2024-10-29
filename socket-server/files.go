@@ -50,13 +50,19 @@ func getFilesFromS3(userId, projectId string) error {
 	log.Println("Length of files: ", urls)
 
 	for k, v := range urls {
-		fmt.Println("Getting file ", k)
-		saveFileFromS3(v, k)
+		fmt.Println("Getting file ", v)
+		err = saveFileFromS3(v, k)
+		if err != nil {
+			log.Println("Error saving the file: ", err.Error())
+			return err
+		}
 	}
+	log.Println("File process done.")
 	return nil
 }
 
 func saveFileFromS3(path string, url string) error {
+	log.Println("Saving file: ", path)
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -66,6 +72,7 @@ func saveFileFromS3(path string, url string) error {
 	if err != nil {
 		return err
 	}
+	log.Println("BODY: ", string(body))
 	err = saveFile(path, string(body))
 	if err != nil {
 		return err
@@ -75,6 +82,7 @@ func saveFileFromS3(path string, url string) error {
 }
 
 func saveFile(path string, content string) error {
+	log.Println("Saving File Locally: ", path)
 	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
 		return err
 	}
@@ -82,7 +90,12 @@ func saveFile(path string, content string) error {
 	if err != nil {
 		return err
 	}
-	f.Write([]byte(content))
+	_, err = f.Write([]byte(content))
+	if err != nil {
+		log.Println("Error writing the file: ", err)
+		return err
+	}
+	fmt.Println("File Saved successfully.")
 	return nil
 }
 

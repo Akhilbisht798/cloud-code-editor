@@ -6,11 +6,13 @@ import { SERVER } from "@/global";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCurrentProject } from "@/state/currentProject";
+import { useProjectContainerIP } from "@/state/projectIp";
 
 const Home: FC = () => {
   const navigate = useNavigate();
   const { email, setEmail } = useAuth();
   const { rootDir, setRootDir } = useCurrentProject();
+  const { setProjectContainerIP } = useProjectContainerIP();
 
   useEffect(() => {
     const url = SERVER + "/api/user";
@@ -18,8 +20,10 @@ const Home: FC = () => {
       try {
         const res = await fetch(url, {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          headers: { 
+            "Content-Type": "application/json", 
+          },
+          credentials: "include"
         });
         const data = await res.json();
         if (res.ok) {
@@ -44,8 +48,7 @@ const Home: FC = () => {
       const url = SERVER + "/api/start";
       console.log("Project: ", rootDir);
       const data = {
-        userId: email,
-        projectId: rootDir,
+        project: rootDir
       };
       const res = await fetch(url, {
         method: "POST",
@@ -54,7 +57,7 @@ const Home: FC = () => {
         credentials: "include",
       });
       const resdata = await res.json();
-      console.log("ip: " + resdata);
+      setProjectContainerIP(resdata.ip)
       navigate("/project");
     } catch (error) {
       console.log(error);

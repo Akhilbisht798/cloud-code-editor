@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { SERVER } from "@/global";
 import { useState } from "react";
-import Cookies from "universal-cookie";
 
 const LoginSchema = z.object({
   email: z
@@ -54,11 +53,8 @@ const Login: FC = () => {
         body: JSON.stringify(data),
       });
       if (res.ok) {
-        const body = await res.json();
-        const jwt = body['jwt'];
-        const cookie = new Cookies()
-        console.log("cookie :", jwt)
-        cookie.set('jwt', jwt, { path: "/"});
+        // const body = await res.json();
+        // const jwt = body['jwt'];
         navigate("/");
       } else {
         const errorText = await res.text();

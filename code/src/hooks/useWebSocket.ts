@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
-import { SOCKET_SERVER } from "../global";
 import { File } from "../interface";
 import { useProjectFiles } from "../state/projectFilesState";
 import { term } from "@/component/terminal/terminal";
 import { useCurrentProject } from "@/state/currentProject";
+import { useProjectContainerIP } from "@/state/projectIp";
+
 
 interface CommandResponse {
   response: string;
@@ -13,6 +14,11 @@ const useWebSocket = () => {
   const ws = useRef<WebSocket | null>(null);
   const { setFiles } = useProjectFiles();
   const { rootDir } = useCurrentProject()
+  const { ip } = useProjectContainerIP();
+
+  const SOCKET_SERVER = "ws://" + ip + ":5000/ws";
+  
+  console.log("Socket Server Ip: ", SOCKET_SERVER);
   
   if (rootDir === null) {
     console.log("useWebsocket: rootDir is null")
