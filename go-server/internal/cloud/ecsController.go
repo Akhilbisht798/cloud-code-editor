@@ -16,6 +16,7 @@ import (
 
 // Start the container and return ip
 func CreateECSContainer(userId string, projectId string) (string, error) {
+	//Subnets
 	subnetsIDsFile := os.Getenv("SUBNET_IDS_FILE")
 	subnetsIDsData, err := os.ReadFile(subnetsIDsFile)
 	if err != nil {
@@ -28,6 +29,22 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 		fmt.Printf("Failed to parse subnetes IDs: %v\n", err)
 		return "", nil
 	}
+
+	//Security Group.
+	securityGroupFile := os.Getenv("SECURITY_GROUP_FILE")
+	securityGroupData, err := os.ReadFile(securityGroupFile)
+	if err != nil {
+		fmt.Printf("Failed to read security group file: %v\n", err)
+		return "", err
+	}
+
+	var securityGroupID string
+	err = json.Unmarshal(securityGroupData, &securityGroupID)
+	if err != nil {
+		fmt.Printf("Failed to parse security group ID: %v\n", err)
+		return "", err
+	}
+
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithDefaultRegion("us-east-1"))
 	if err != nil {
@@ -44,6 +61,7 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 			AwsvpcConfiguration: &types.AwsVpcConfiguration{
 				Subnets:        subnetsIDs,
 				AssignPublicIp: types.AssignPublicIpEnabled,
+				SecurityGroups: []string{securityGroupID},
 			},
 		},
 		Overrides: &types.TaskOverride{
