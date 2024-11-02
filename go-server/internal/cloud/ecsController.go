@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -15,19 +16,19 @@ import (
 )
 
 // Start the container and return ip
-func CreateECSContainer(userId string, projectId string) (string, error) {
+func CreateECSContainer(userId string, projectId string) (string, string, error) {
 	//Subnets
 	subnetsIDsFile := os.Getenv("SUBNET_IDS_FILE")
 	subnetsIDsData, err := os.ReadFile(subnetsIDsFile)
 	if err != nil {
 		fmt.Printf("failed to read subnets ID files: %v\n", err)
-		return "", err
+		return "", "", err
 	}
 	var subnetsIDs []string
 	err = json.Unmarshal(subnetsIDsData, &subnetsIDs)
 	if err != nil {
 		fmt.Printf("Failed to parse subnetes IDs: %v\n", err)
-		return "", nil
+		return "", "", err
 	}
 
 	//Security Group.
@@ -35,20 +36,20 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 	securityGroupData, err := os.ReadFile(securityGroupFile)
 	if err != nil {
 		fmt.Printf("Failed to read security group file: %v\n", err)
-		return "", err
+		return "", "", err
 	}
 
 	var securityGroupID string
 	err = json.Unmarshal(securityGroupData, &securityGroupID)
 	if err != nil {
 		fmt.Printf("Failed to parse security group ID: %v\n", err)
-		return "", err
+		return "", "", err
 	}
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithDefaultRegion("us-east-1"))
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	client := ecs.NewFromConfig(cfg)
 	ec2Client := ec2.NewFromConfig(cfg)
@@ -86,12 +87,12 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 	result, err := client.RunTask(context.TODO(), input)
 	if err != nil {
 		fmt.Printf("Failed to run task: %v\n", err)
-		return "", err
+		return "", "", err
 	}
 
 	if len(result.Tasks) == 0 {
 		fmt.Println("No tasks started")
-		return "", nil
+		return "", "", nil
 	}
 
 	taskArn := *result.Tasks[0].TaskArn
@@ -103,12 +104,12 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 		describeTasksOutput, err := client.DescribeTasks(context.TODO(), describeTasksInput)
 		if err != nil {
 			fmt.Printf("Failed to describe task: %v\n", err)
-			return "", err
+			return "", "", err
 		}
 
 		if len(describeTasksOutput.Tasks) == 0 {
 			fmt.Println("Task not found")
-			return "", err
+			return "", "", err
 		}
 
 		task := describeTasksOutput.Tasks[0]
@@ -128,12 +129,12 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 					describeNetworkInterfaceOutput, err := ec2Client.DescribeNetworkInterfaces(context.TODO(), describeNetworkInterfacesInput)
 					if err != nil {
 						fmt.Printf("Failed to describe network interface: %v\n", err)
-						return "", err
+						return "", "", err
 					}
 
 					if len(describeNetworkInterfaceOutput.NetworkInterfaces) > 0 {
 						publicIP := describeNetworkInterfaceOutput.NetworkInterfaces[0].Association.PublicIp
-						return *publicIP, nil
+						return *publicIP, taskArn, nil
 					}
 				}
 			}
@@ -143,3 +144,22 @@ func CreateECSContainer(userId string, projectId string) (string, error) {
 }
 
 // Delete the container
+func StopContainer(taskId string, cluster string) error {
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithDefaultRegion("us-east-1"))
+	if err != nil {
+		return err
+	}
+	client := ecs.NewFromConfig(cfg)
+	input := &ecs.StopTaskInput{
+		Task:    &taskId,
+		Cluster: &cluster,
+	}
+	_, err = client.StopTask(context.TODO(), input)
+	if err != nil {
+		log.Printf("Error Stoping the task %s: %v", taskId, err)
+		return err
+	}
+	log.Printf("Successfully stopped the task %s", taskId)
+	return nil
+}

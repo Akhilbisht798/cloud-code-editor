@@ -24,7 +24,8 @@ type CreateProjectRequest struct {
 }
 
 type CreateProjectResponse struct {
-	Ip string `json:"ip"`
+	Ip      string `json:"ip"`
+	TaskArn string `json:"taskArn"`
 }
 
 func CreateProject(w http.ResponseWriter, r *http.Request) {
@@ -72,14 +73,15 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ip, err := cloud.CreateECSContainer(strconv.Itoa(user.Id), req.Project)
+	ip, taskarn, err := cloud.CreateECSContainer(strconv.Itoa(user.Id), req.Project)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	log.Println("ip: ", ip)
 	output := CreateProjectResponse{
-		Ip: ip,
+		Ip:      ip,
+		TaskArn: taskarn,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -89,6 +91,26 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+type CloseTaskInput struct {
+	TaskId string `json:"taskId"`
+}
+
+func CloseTask(w http.ResponseWriter, r *http.Request) {
+	var payload CloseTaskInput
+	err := json.NewDecoder(r.Body).Decode(&payload)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = cloud.StopContainer(payload.TaskId, "socket-servers")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte("successfully stopped the task"))
 }
 
 func Register(w http.ResponseWriter, r *http.Request) {
